@@ -1,49 +1,66 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Daedalus NeoForge 1.21.1 - Round 6
-修复运行时 Mixin 崩溃: MixinSynchedEntityData 无法定位 @Shadow entity 字段
+Daedalus NeoForge 1.21.1 - fix_round.py
+当前轮次: Round 7
+修复: 附魔 JSON 的 min_cost / max_cost 缺少 per_level_above_first 字段
+影响: void_breach.json, stellar_eater.json (max_level=1 的附魔)
+机制: 1.21.1 附魔 codec 要求该字段必须存在，即使值为 0
 """
-import re
+import json
 from pathlib import Path
 
 P = Path(r"D:\AAA.DownLoad\Daedalus_Enchantment-main")
-SRC = P / "src" / "main" / "java" / "com" / "kzjy" / "daedalus"
-RES = P / "src" / "main" / "resources"
+ENCH_DIR = P / "src/main/resources/data/daedalus/enchantment"
 
-# 1. 删除 MixinSynchedEntityData.java
-msd = SRC / "mixin" / "MixinSynchedEntityData.java"
-if msd.exists():
-    msd.unlink()
-    print("[删除] MixinSynchedEntityData.java")
-else:
-    print("[跳过] MixinSynchedEntityData.java 不存在")
+if not ENCH_DIR.exists():
+    print(f"[错误] 目录不存在: {ENCH_DIR}")
+    raise SystemExit(1)
 
-# 2. 从 mixins.json 移除对应条目
-mj = RES / "daedalus.mixins.json"
-if mj.exists():
-    s = mj.read_text(encoding="utf-8")
-    before = s
-    s = re.sub(r',\s*"MixinSynchedEntityData"(?=\s*[,\]])', '', s)
-    s = re.sub(r'"MixinSynchedEntityData"\s*,?\s*', '', s)
-    if s != before:
-        mj.write_text(s, encoding="utf-8")
-        print("[修改] daedalus.mixins.json: 移除 MixinSynchedEntityData")
+print(f"扫描 {ENCH_DIR} 下的附魔 JSON...\n")
+
+fixed = 0
+skipped = 0
+for f in sorted(ENCH_DIR.glob("*.json")):
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"[解析失败] {f.name}: {e}")
+        continue
+
+    changed = False
+    for key in ("min_cost", "max_cost"):
+        if key in data and isinstance(data[key], dict):
+            if "per_level_above_first" not in data[key]:
+                data[key]["per_level_above_first"] = 0
+                changed = True
+
+    if changed:
+        f.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8"
+        )
+        print(f"[修复] {f.name}")
+        fixed += 1
     else:
-        print("[跳过] mixins.json 中没有 MixinSynchedEntityData 条目")
-    print("\n当前 mixins.json 内容:")
-    print(mj.read_text(encoding="utf-8"))
+        skipped += 1
 
-# 3. 检查是否有其它地方引用 MixinSynchedEntityData
-for jf in SRC.rglob("*.java"):
-    c = jf.read_text(encoding="utf-8")
-    if "MixinSynchedEntityData" in c:
-        print(f"[警告] {jf.name} 仍引用 MixinSynchedEntityData，需要手工检查")
+print(f"\n修复: {fixed} 个文件，跳过: {skipped} 个文件")
+
+# 校验修复后的 void_breach 和 stellar_eater
+for name in ("void_breach", "stellar_eater"):
+    target = ENCH_DIR / f"{name}.json"
+    if target.exists():
+        data = json.loads(target.read_text(encoding="utf-8"))
+        print(f"\n{name}.json 修复后:")
+        print(f"  max_level = {data.get('max_level')}")
+        print(f"  min_cost = {data.get('min_cost')}")
+        print(f"  max_cost = {data.get('max_cost')}")
 
 print("\n" + "=" * 60)
-print("Round 6 修复完成")
+print("Round 7 修复完成")
 print("=" * 60)
 print("\n下一步:")
 print("  git add .")
-print('  git commit -m "fix: remove MixinSynchedEntityData (1.21.1 SynchedEntityData has no entity field)"')
+print('  git commit -m "fix: add per_level_above_first to max_level=1 enchantment costs"')
 print("  git push")
