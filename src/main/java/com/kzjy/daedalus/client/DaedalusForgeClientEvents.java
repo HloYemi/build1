@@ -22,8 +22,8 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.ArrayList;
@@ -38,10 +38,13 @@ public class DaedalusForgeClientEvents {
 
     @SubscribeEvent
     public static void clientTick(ClientTickEvent.Post event) {
-        
         boolean alt = Screen.hasAltDown();
-        if (alt) { if (!wasAltDown) typewriterTick = 0; typewriterTick++; }
-        else typewriterTick = 0;
+        if (alt) {
+            if (!wasAltDown) typewriterTick = 0;
+            typewriterTick++;
+        } else {
+            typewriterTick = 0;
+        }
         wasAltDown = alt;
     }
 
@@ -121,6 +124,9 @@ public class DaedalusForgeClientEvents {
             }
         }
 
+        boolean inCreativeInventory =
+                Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen;
+
         for (var entry : s.getEnchantments().entrySet()) {
             Holder<Enchantment> holder = entry.getKey();
             var keyOpt = holder.unwrapKey();
@@ -133,9 +139,8 @@ public class DaedalusForgeClientEvents {
             String base = holder.value().description().getString();
             String dk = key.location().toLanguageKey("enchantment") + ".desc";
             String full = I18n.exists(dk) ? I18n.get(dk) : "";
-
-            boolean inCreativeInventory = Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen;
             int primaryColor = theme.getPrimaryColor();
+
             for (int i = 0; i < event.getTooltipElements().size(); i++) {
                 var el = event.getTooltipElements().get(i);
                 if (el.left().isEmpty()) continue;
@@ -144,13 +149,12 @@ public class DaedalusForgeClientEvents {
                 boolean isDesc = !full.isEmpty() && !isTitle && full.contains(line.trim()) && line.trim().length() > 4;
                 if (isTitle || isDesc) {
                     if (inCreativeInventory) {
-                        // 创造物品栏: 必须保留 Either.left(FormattedText) 结构，
-                        // 否则 CreativeModeInventoryScreen 在 index 1 处 add 附魔名列表会越界
+                        // 创造物品栏会往 tooltip 的 index 1 处插入附魔名列表，
+                        // 必须保留至少一个 Either.left，否则 ArrayList 越界崩溃。
                         FormattedText styled = Component.literal(line)
-                                .withStyle(s -> s.withColor(primaryColor));
+                                .withStyle(st -> st.withColor(primaryColor));
                         event.getTooltipElements().set(i, Either.left(styled));
                     } else {
-                        // 普通背包/容器: 动态渐变组件
                         event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
                                 Component.literal(line), theme, -1, true)));
                     }
