@@ -14,7 +14,7 @@ public abstract class MixinLivingDamageEvent {
 
     @Inject(method = "setNewDamage", at = @At("HEAD"), cancellable = true, remap = false)
     private void daedalus$interceptSetNewDamage(float newDamage, CallbackInfo ci) {
-        if (((IDaedalusLivingEvent) (Object) this).daedalus$isAmountOnlyUp()) {
+        if (((IDaedalusLivingEvent) (Object) this).daedalus$isOnlyAmountUp()) {
             if (newDamage < this.getNewDamage()) {
                 ci.cancel();
             }

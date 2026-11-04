@@ -32,6 +32,9 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        event.register("cosmic", new DaedalusModelLoader());
+        event.register(
+            ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "cosmic"),
+            new DaedalusModelLoader()
+        );
     }
 }

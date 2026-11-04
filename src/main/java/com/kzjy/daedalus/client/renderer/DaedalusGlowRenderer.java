@@ -17,8 +17,8 @@ import java.awt.Color;
 import java.util.Random;
 
 public class DaedalusGlowRenderer {
-    private static final ResourceLocation GR_GLOW = new ResourceLocation(Daedalus.MODID, "textures/misc/gr.png");
-    private static final ResourceLocation MAP_GLOW = new ResourceLocation(Daedalus.MODID, "textures/misc/gr_m.png");
+    private static final ResourceLocation GR_GLOW = ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "textures/misc/gr.png");
+    private static final ResourceLocation MAP_GLOW = ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "textures/misc/gr_m.png");
     private static final Random RANDOM = new Random(432L);
 
     public static void render(PoseStack poseStack, MultiBufferSource bufferSource, ItemDisplayContext displayContext) {
@@ -175,7 +175,7 @@ public class DaedalusGlowRenderer {
     }
 
     private static void addVertexWithColor(VertexConsumer vertexConsumer, Matrix4f matrix, Matrix3f normal, float x, float y, float z, float u, float v, int r, int g, int b, int alpha) {
-        vertexConsumer.vertex(matrix, x, y, z)
+        vertexConsumer.addVertex(matrix, x, y, z)
                 .color(r, g, b, alpha)
                 .uv(u, v)
                 .overlayCoords(240, 240)

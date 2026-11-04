@@ -26,19 +26,19 @@ public class DaedalusRenderTypes extends RenderType {
     public static ShaderInstance cosmicNeoShader;
     public static ShaderInstance glowEdgeShader;
 
-    private static final ResourceLocation GR_GLOW_TEX = new ResourceLocation(Daedalus.MODID, "textures/misc/gr.png");
-    private static final ResourceLocation MAP_GLOW_TEX = new ResourceLocation(Daedalus.MODID, "textures/misc/gr_m.png");
+    private static final ResourceLocation GR_GLOW_TEX = ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "textures/misc/gr.png");
+    private static final ResourceLocation MAP_GLOW_TEX = ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "textures/misc/gr_m.png");
 
     @SubscribeEvent
     public static void registerShaders(RegisterShadersEvent event) {
         try {
-            event.registerShader(new ShaderInstance(event.getResourceProvider(), new ResourceLocation(Daedalus.MODID, "daedalus_cosmic"), DefaultVertexFormat.NEW_ENTITY),
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "daedalus_cosmic"), DefaultVertexFormat.NEW_ENTITY),
                     shaderInstance -> cosmicShader = shaderInstance);
 
-            event.registerShader(new ShaderInstance(event.getResourceProvider(), new ResourceLocation(Daedalus.MODID, "cosmic_neo"), DefaultVertexFormat.NEW_ENTITY),
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "cosmic_neo"), DefaultVertexFormat.NEW_ENTITY),
                     shaderInstance -> cosmicNeoShader = shaderInstance);
 
-            event.registerShader(new ShaderInstance(event.getResourceProvider(), new ResourceLocation(Daedalus.MODID, "glow_edge"), DefaultVertexFormat.NEW_ENTITY),
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "glow_edge"), DefaultVertexFormat.NEW_ENTITY),
                     shaderInstance -> glowEdgeShader = shaderInstance);
         } catch (Exception e) {
             Daedalus.LOGGER.error("Failed to register Daedalus shaders", e);
@@ -49,7 +49,7 @@ public class DaedalusRenderTypes extends RenderType {
             DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true,
             RenderType.CompositeState.builder()
                     .setShaderState(new RenderStateShard.ShaderStateShard(() -> cosmicShader))
-                    .setTextureState(new RenderStateShard.TextureStateShard(new ResourceLocation("textures/atlas/blocks.png"), false, false))
+                    .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.parse("textures/atlas/blocks.png"), false, false))
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                     .setWriteMaskState(COLOR_WRITE)
                     .setCullState(NO_CULL)
@@ -61,7 +61,7 @@ public class DaedalusRenderTypes extends RenderType {
             DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true,
             RenderType.CompositeState.builder()
                     .setShaderState(new RenderStateShard.ShaderStateShard(() -> cosmicNeoShader))
-                    .setTextureState(new RenderStateShard.TextureStateShard(new ResourceLocation("textures/atlas/blocks.png"), false, false))
+                    .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.parse("textures/atlas/blocks.png"), false, false))
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                     .setWriteMaskState(COLOR_WRITE)
                     .setCullState(NO_CULL)
@@ -73,7 +73,7 @@ public class DaedalusRenderTypes extends RenderType {
             DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true,
             RenderType.CompositeState.builder()
                     .setShaderState(new RenderStateShard.ShaderStateShard(() -> glowEdgeShader))
-                    .setTextureState(new RenderStateShard.TextureStateShard(new ResourceLocation("textures/atlas/blocks.png"), false, false))
+                    .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.parse("textures/atlas/blocks.png"), false, false))
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                     .setCullState(NO_CULL)
                     .setLightmapState(LIGHTMAP)

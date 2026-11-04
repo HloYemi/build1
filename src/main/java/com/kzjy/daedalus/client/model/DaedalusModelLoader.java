@@ -59,7 +59,9 @@ public class DaedalusModelLoader implements IGeometryLoader<DaedalusModelLoader.
 
         BlockModel baseModel = context.deserialize(clean, BlockModel.class);
 
-        return new DaedalusCosmicGeometry(baseModel, new ResourceLocation(maskPath), glowColor, glowWidth, glowOffset, isNeo, neoType);
+        return new DaedalusCosmicGeometry(baseModel,
+                ResourceLocation.parse(maskPath),
+                glowColor, glowWidth, glowOffset, isNeo, neoType);
     }
 
     public static class DaedalusCosmicGeometry implements IUnbakedGeometry<DaedalusCosmicGeometry> {
@@ -71,7 +73,9 @@ public class DaedalusModelLoader implements IGeometryLoader<DaedalusModelLoader.
         private final boolean isNeo;
         private final int neoType;
 
-        public DaedalusCosmicGeometry(BlockModel baseModel, ResourceLocation maskLocation, int glowColor, float glowWidth, float glowOffset, boolean isNeo, int neoType) {
+        public DaedalusCosmicGeometry(BlockModel baseModel, ResourceLocation maskLocation,
+                                      int glowColor, float glowWidth, float glowOffset,
+                                      boolean isNeo, int neoType) {
             this.baseModel = baseModel;
             this.maskLocation = maskLocation;
             this.glowColor = glowColor;
@@ -82,13 +86,19 @@ public class DaedalusModelLoader implements IGeometryLoader<DaedalusModelLoader.
         }
 
         @Override
-        public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
-            BakedModel bakedBaseModel = this.baseModel.bake(baker, this.baseModel, spriteGetter, modelState, modelLocation, true);
-            return new DaedalusCosmicBakedModel(bakedBaseModel, Collections.singletonList(maskLocation), glowColor, glowWidth, glowOffset, isNeo, neoType);
+        public BakedModel bake(IGeometryBakingContext context, ModelBaker baker,
+                               Function<Material, TextureAtlasSprite> spriteGetter,
+                               ModelState modelState, ItemOverrides overrides) {
+            BakedModel bakedBaseModel = this.baseModel.bake(
+                    baker, this.baseModel, spriteGetter, modelState, true);
+            return new DaedalusCosmicBakedModel(bakedBaseModel,
+                    Collections.singletonList(maskLocation),
+                    glowColor, glowWidth, glowOffset, isNeo, neoType);
         }
 
         @Override
-        public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter, IGeometryBakingContext context) {
+        public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter,
+                                   IGeometryBakingContext context) {
             this.baseModel.resolveParents(modelGetter);
         }
     }

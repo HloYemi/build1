@@ -36,7 +36,7 @@ public class MixinSynchedEntityData {
     private <T> void daedalus$interceptGet(EntityDataAccessor<T> key, CallbackInfoReturnable<T> cir) {
         if (this.entity instanceof LivingEntity living) {
             if (living.getPersistentData().getBoolean("DaedalusDeathMark")) {
-                if (key.getSerializer() == EntityDataSerializers.FLOAT) {
+                if (key.serializer() == EntityDataSerializers.FLOAT) {
                     cir.setReturnValue((T) Float.valueOf(0.0f));
                 }
             }
@@ -52,7 +52,7 @@ public class MixinSynchedEntityData {
     private <T> T daedalus$interceptSet(T value, EntityDataAccessor<T> key) {
         if (this.entity instanceof LivingEntity living) {
             if (living.getPersistentData().getBoolean("DaedalusDeathMark")) {
-                if (key.getSerializer() == EntityDataSerializers.FLOAT) {
+                if (key.serializer() == EntityDataSerializers.FLOAT) {
                     float floatVal = (Float) value;
                     if (floatVal > 0.0f) {
                         return (T) Float.valueOf(0.0f);

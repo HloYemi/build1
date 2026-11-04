@@ -9,14 +9,15 @@ import com.kzjy.daedalus.registry.DaedalusRegistries;
 import com.kzjy.daedalus.mixin.ZombieVillagerInvoker;
 import com.kzjy.daedalus.util.DaedalusDeathManager;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.ZombieVillager;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TridentItem;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.AABB;
@@ -32,10 +34,12 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -46,7 +50,15 @@ import java.util.Random;
 public class DaedalusEvents {
     private static final Random RANDOM = new Random();
 
-    private static float calculateBaseDamage(LivingEntity attacker, LivingEntity target) {
+    private static CompoundTag getCustomData(ItemStack stack) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+    }
+
+    private static void setCustomData(ItemStack stack, CompoundTag tag) {
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+    }
+
+    private static float calculateBaseDamage(LivingEntity attacker) {
         double base = attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         if (attacker instanceof Player p) {
             float s = p.getAttackStrengthScale(0.5f);
@@ -72,8 +84,7 @@ public class DaedalusEvents {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onPlayerAttackOverride(AttackEntityEvent event) {
         if (event.getEntity().level().isClientSide) return;
-        var player = event.getEntity();
-        ItemStack stack = player.getMainHandItem();
+        ItemStack stack = event.getEntity().getMainHandItem();
         if (DaedalusConfig.COMMON.voidBreachEnabled.get()
                 && DaedalusEnchantments.getLevel(stack, DaedalusEnchantments.VOID_BREACH) > 0) {
             if (event.getTarget() instanceof LivingEntity t) {
@@ -85,7 +96,7 @@ public class DaedalusEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onLivingAttackInit(LivingAttackEvent event) {
+    public static void onLivingIncomingDamageInit(LivingIncomingDamageEvent event) {
         if (event.getEntity().level().isClientSide) return;
         if (event.getSource().getEntity() instanceof LivingEntity a) {
             ItemStack w = a.getMainHandItem();
@@ -104,28 +115,9 @@ public class DaedalusEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
-    public static void onLivingAttackEnforce(LivingAttackEvent event) {
+    public static void onLivingIncomingDamageEnforce(LivingIncomingDamageEvent event) {
         if (event.isCanceled() && event.getSource() instanceof IDaedalusDamageSource ds && ds.daedalus$isBypassAll())
             event.setCanceled(false);
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onLivingHurtPre(LivingDamageEvent.Pre event) {
-        if (event.getSource().getEntity() instanceof LivingEntity a) {
-            ItemStack w = a.getMainHandItem();
-            if (DaedalusConfig.COMMON.voidBreachEnabled.get()
-                    && DaedalusEnchantments.getLevel(w, DaedalusEnchantments.VOID_BREACH) > 0) {
-                event.getEntity().invulnerableTime = 0;
-            }
-            if (isAbsoluteTrueDamage(w)) {
-                event.getEntity().invulnerableTime = 0;
-                if (event.getSource() instanceof IDaedalusDamageSource ds) ds.daedalus$setBypassAll(true);
-                if (event instanceof IDaedalusLivingEvent dle) {
-                    dle.daedalus$setUncancelable(true);
-                    dle.daedalus$setOnlyAmountUp(true);
-                }
-            }
-        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -168,7 +160,7 @@ public class DaedalusEvents {
         if (DaedalusConfig.COMMON.soulThirstEnabled.get()) {
             int lvl = DaedalusEnchantments.getLevel(w, DaedalusEnchantments.SOUL_THIRST);
             if (lvl > 0) {
-                CompoundTag tag = w.getOrCreateTag();
+                CompoundTag tag = getCustomData(w);
                 int souls = tag.getInt("DaedalusSouls");
                 int max = DaedalusConfig.COMMON.soulThirstMaxThreshold.get();
                 if (souls >= max) {
@@ -179,6 +171,7 @@ public class DaedalusEvents {
                     t.hurt(a.damageSources().magic(), event.getNewDamage() * (base + lb));
                     t.invulnerableTime = inv;
                     tag.putInt("DaedalusSouls", 0);
+                    setCustomData(w, tag);
                 }
             }
         }
@@ -197,7 +190,6 @@ public class DaedalusEvents {
         if (!(event.getSource().getEntity() instanceof LivingEntity a)) return;
         ItemStack w = a.getMainHandItem();
         if (isAbsoluteTrueDamage(w)) {
-            if (event.isCanceled()) event.setCanceled(false);
             if (event instanceof IDaedalusLivingEvent dle) {
                 dle.daedalus$setUncancelable(true);
                 dle.daedalus$setOnlyAmountUp(true);
@@ -209,18 +201,17 @@ public class DaedalusEvents {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingDamageEnforce(LivingDamageEvent.Pre event) {
         if (event.getSource().getEntity() instanceof LivingEntity a) {
             ItemStack w = a.getMainHandItem();
             LivingEntity t = event.getEntity();
             if (isAbsoluteTrueDamage(w)) {
-                if (event.isCanceled()) event.setCanceled(false);
                 if (event instanceof IDaedalusLivingEvent dle) {
                     dle.daedalus$setUncancelable(true);
                     dle.daedalus$setOnlyAmountUp(true);
                 }
-                float raw = calculateBaseDamage(a, t);
+                float raw = calculateBaseDamage(a);
                 if (event.getNewDamage() < raw) event.setNewDamage(raw);
                 t.invulnerableTime = 0;
                 if (w.is(DaedalusRegistries.LOVE_POEM_SWORD.get())) {
@@ -280,11 +271,12 @@ public class DaedalusEvents {
             ItemStack w = p.getMainHandItem();
             int lvl = DaedalusEnchantments.getLevel(w, DaedalusEnchantments.SOUL_THIRST);
             if (lvl > 0) {
-                CompoundTag tag = w.getOrCreateTag();
+                CompoundTag tag = getCustomData(w);
                 int cur = tag.getInt("DaedalusSouls");
                 int gain = (int)(lvl * DaedalusConfig.COMMON.soulThirstGainPerLevel.get());
                 int max = DaedalusConfig.COMMON.soulThirstMaxThreshold.get();
                 tag.putInt("DaedalusSouls", Math.min(max, cur + gain));
+                setCustomData(w, tag);
             }
         }
     }
@@ -317,9 +309,9 @@ public class DaedalusEvents {
     }
 
     @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        if (event.getEntity().level().isClientSide) return;
-        LivingEntity e = event.getEntity();
+    public static void onEntityTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof LivingEntity e)) return;
+        if (e.level().isClientSide) return;
         DaedalusDeathManager.tickExecution(e);
 
         CompoundTag data = e.getPersistentData();
@@ -369,15 +361,15 @@ public class DaedalusEvents {
         if (DaedalusConfig.COMMON.immortalEnabled.get()
                 && event.getEffectInstance().getEffect().value().getCategory() == MobEffectCategory.HARMFUL
                 && getArmorEnchantmentLevel(event.getEntity(), DaedalusEnchantments.IMMORTAL) > 0) {
-            event.setResult(net.neoforged.bus.api.Event.Result.DENY);
+            event.setResult(TriState.FALSE);
         }
     }
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
-        if (event.getEntity().level().isClientSide || event.getEntity().tickCount % 5 != 0) return;
+        var p = event.getEntity();
+        if (p.level().isClientSide || p.tickCount % 5 != 0) return;
         if (!DaedalusConfig.COMMON.abyssalGazeEnabled.get()) return;
-        Player p = event.getEntity();
         int lvl = DaedalusEnchantments.getLevel(p.getItemBySlot(EquipmentSlot.HEAD), DaedalusEnchantments.ABYSSAL_GAZE);
         if (lvl <= 0) return;
         Vec3 look = p.getLookAngle();
@@ -414,7 +406,7 @@ public class DaedalusEvents {
     public static void onItemTooltip(ItemTooltipEvent event) {
         ItemStack s = event.getItemStack();
         if (DaedalusEnchantments.getLevel(s, DaedalusEnchantments.SOUL_THIRST) > 0) {
-            int souls = s.getOrCreateTag().getInt("DaedalusSouls");
+            int souls = getCustomData(s).getInt("DaedalusSouls");
             int max = DaedalusConfig.COMMON.soulThirstMaxThreshold.get();
             event.getToolTip().add(Component.literal("Souls: " + souls + "/" + max).withStyle(ChatFormatting.DARK_RED));
         }
@@ -439,13 +431,14 @@ public class DaedalusEvents {
             boolean breach = event.getSource() instanceof IDaedalusDamageSource ds
                     && (ds.daedalus$isVoidBreach() || ds.daedalus$isBypassAll());
             int lvl = aInst.getAmplifier() + 1;
-            if (!breach && RANDOM.nextFloat() < lvl * 0.05) { event.setCanceled(true); return; }
-            event.setAmount(event.getAmount() * (1.0f - lvl * 0.1f));
+            if (!breach && RANDOM.nextFloat() < lvl * 0.05) { event.setNewDamage(0); return; }
+            event.setNewDamage(event.getNewDamage() * (1.0f - lvl * 0.1f));
         }
         var gInst = v.getEffect(DaedalusRegistries.ANGELIC_PROTECTION);
-        if (gInst != null && event.getSource().getEntity() instanceof LivingEntity a && a.getType().is(EntityTypeTags.UNDEAD)) {
+        if (gInst != null && event.getSource().getEntity() instanceof LivingEntity a
+                && a.getType().is(EntityTypeTags.UNDEAD)) {
             int lvl = gInst.getAmplifier() + 1;
-            event.setAmount(event.getAmount() * (1.0f - Math.min(0.99f, lvl * 0.25f)));
+            event.setNewDamage(event.getNewDamage() * (1.0f - Math.min(0.99f, lvl * 0.25f)));
         }
     }
 
