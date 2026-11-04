@@ -96,11 +96,11 @@ public class DaedalusForgeClientEvents {
                             Component.literal(line), EnchantmentTheme.MIRACLE, w, true)));
                 } else if (line.contains("Love") && line.contains(atkName)) {
                     event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                            Component.literal(" Love "), EnchantmentTheme.MIRACLE, -1, true,
+                            Component.literal(" Love "), EnchantmentTheme.MIRACLE, -1, true, false,
                             Component.literal(" " + atkName).withStyle(ChatFormatting.DARK_GREEN))));
                 } else if (line.contains(speedVal) && line.contains(spdName)) {
                     event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                            Component.literal(" " + speedVal + " "), EnchantmentTheme.LAVENDER, -1, true,
+                            Component.literal(" " + speedVal + " "), EnchantmentTheme.LAVENDER, -1, true, false,
                             Component.literal(" " + spdName).withStyle(ChatFormatting.DARK_GREEN))));
                 }
             }
