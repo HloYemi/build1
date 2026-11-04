@@ -6,10 +6,14 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
@@ -20,7 +24,6 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -48,7 +51,7 @@ public class LovePoemSwordItem extends SwordItem {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack) {
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return 72000;
     }
 
@@ -62,7 +65,7 @@ public class LovePoemSwordItem extends SwordItem {
     @Override
     public ItemStack getDefaultInstance() {
         ItemStack stack = new ItemStack(this);
-        stack.set(DataComponents.HIDE_TOOLTIP, net.minecraft.util.Unit.INSTANCE);
+        stack.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE);
         return stack;
     }
 
@@ -78,7 +81,7 @@ public class LovePoemSwordItem extends SwordItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         if (Screen.hasAltDown()) {
             tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc0.line1"));
             tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc0.line2"));

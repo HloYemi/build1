@@ -8,6 +8,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import org.joml.Matrix3f;
@@ -176,12 +178,11 @@ public class DaedalusGlowRenderer {
 
     private static void addVertexWithColor(VertexConsumer vertexConsumer, Matrix4f matrix, Matrix3f normal, float x, float y, float z, float u, float v, int r, int g, int b, int alpha) {
         vertexConsumer.addVertex(matrix, x, y, z)
-                .color(r, g, b, alpha)
-                .uv(u, v)
-                .overlayCoords(240, 240)
-                .uv2(240, 240)
-                .normal(normal, 0.0F, 1.0F, 0.0F)
-                .endVertex();
+                .setColor(r, g, b, alpha)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(normal, 0.0F, 1.0F, 0.0F);
     }
 
     private record ColorInfo(int r1, int g1, int b1, int r2, int g2, int b2) {}

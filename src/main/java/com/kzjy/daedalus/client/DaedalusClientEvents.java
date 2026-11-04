@@ -14,7 +14,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
  * 客户端事件注册类<br>
  * 注册自定义 Tooltip 组件工厂
  */
-@EventBusSubscriber(modid = Daedalus.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Daedalus.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class DaedalusClientEvents {
 
     @SubscribeEvent

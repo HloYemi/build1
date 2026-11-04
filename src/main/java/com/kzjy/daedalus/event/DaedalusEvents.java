@@ -34,7 +34,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
@@ -361,7 +360,7 @@ public class DaedalusEvents {
         if (DaedalusConfig.COMMON.immortalEnabled.get()
                 && event.getEffectInstance().getEffect().value().getCategory() == MobEffectCategory.HARMFUL
                 && getArmorEnchantmentLevel(event.getEntity(), DaedalusEnchantments.IMMORTAL) > 0) {
-            event.setResult(TriState.FALSE);
+            event.setResult(net.neoforged.bus.api.Event.Result.DENY);
         }
     }
 
