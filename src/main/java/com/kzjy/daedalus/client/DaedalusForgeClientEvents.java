@@ -51,7 +51,6 @@ public class DaedalusForgeClientEvents {
                 
                 String line = el.left().get().getString();
                 boolean isTitle = line.contains(base);
-                // 如果 EnchantmentDescriptions 模组加了前缀或颜色，这里过滤更宽松一些
                 boolean isDesc = !full.isEmpty() && !isTitle && full.contains(line.trim()) && line.trim().length() > 4;
                 
                 if (isTitle || isDesc) {

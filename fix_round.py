@@ -1,9 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Round 8: 修复附魔书字体渲染失效问题
-在 1.21.1 中，附魔书的附魔存储在 DataComponents.STORED_ENCHANTMENTS，
-而不再是普通的 getEnchantments()。
+Round 8+9: 修复附魔书字体渲染 + 修复 ModelLoader 缺少 BakedQuad 导入
 """
 from pathlib import Path
 
@@ -11,15 +9,12 @@ P = Path(r"D:\AAA.DownLoad\Daedalus_Enchantment-main")
 SRC = P / "src/main/java/com/kzjy/daedalus"
 
 print("=" * 60)
-print("Round 8: 修复附魔书 Tooltip 字体渲染")
+print("Round 8+9: 字体修复 + BakedQuad 导入修复")
 print("=" * 60)
 
+# ===== 1. 修复 DaedalusForgeClientEvents (字体渲染) =====
 fce = SRC / "client" / "DaedalusForgeClientEvents.java"
-if not fce.exists():
-    print("[错误] DaedalusForgeClientEvents.java 不存在")
-    exit(1)
-
-content = '''package com.kzjy.daedalus.client;
+fce_content = '''package com.kzjy.daedalus.client;
 
 import com.kzjy.daedalus.Daedalus;
 import com.kzjy.daedalus.client.gui.DaedalusTooltipData;
@@ -72,7 +67,6 @@ public class DaedalusForgeClientEvents {
                 
                 String line = el.left().get().getString();
                 boolean isTitle = line.contains(base);
-                // 如果 EnchantmentDescriptions 模组加了前缀或颜色，这里过滤更宽松一些
                 boolean isDesc = !full.isEmpty() && !isTitle && full.contains(line.trim()) && line.trim().length() > 4;
                 
                 if (isTitle || isDesc) {
@@ -84,10 +78,29 @@ public class DaedalusForgeClientEvents {
     }
 }
 '''
-
-fce.write_text(content, encoding="utf-8")
+fce.write_text(fce_content, encoding="utf-8")
 print("[替换] DaedalusForgeClientEvents.java")
+
+# ===== 2. 修复 DaedalusModelLoader (BakedQuad 导入) =====
+loader = SRC / "client/model/DaedalusModelLoader.java"
+if loader.exists():
+    c = loader.read_text(encoding="utf-8")
+    
+    # 添加 BakedQuad 导入
+    if "import net.minecraft.client.renderer.block.model.BakedQuad;" not in c:
+        c = c.replace(
+            "import net.minecraft.client.renderer.block.model.BlockModel;",
+            "import net.minecraft.client.renderer.block.model.BlockModel;\nimport net.minecraft.client.renderer.block.model.BakedQuad;"
+        )
+        print("[修改] DaedalusModelLoader.java: 增加 BakedQuad 导入")
+    else:
+        print("[跳过] DaedalusModelLoader.java: 已存在 BakedQuad 导入")
+
+    loader.write_text(c, encoding="utf-8")
+else:
+    print("[错误] 找不到 DaedalusModelLoader.java")
+
 print("\n下一步:")
 print("  git add .")
-print('  git commit -m "fix: tooltip rendering for stored enchantments in 1.21.1"')
+print('  git commit -m "fix: font rendering for enchantments and missing BakedQuad import"')
 print("  git push")
