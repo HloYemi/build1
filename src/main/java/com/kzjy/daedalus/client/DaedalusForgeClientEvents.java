@@ -65,6 +65,13 @@ public class DaedalusForgeClientEvents {
 
     @SubscribeEvent
     public static void onGatherTooltipComponents(RenderTooltipEvent.GatherComponents event) {
+        // CreativeModeInventoryScreen.getTooltipFromContainerItem 会在 tooltip 的
+        // index 1 处插入附魔名列表，前提是 tooltip 中存在 Either.left(FormattedText) 元素。
+        // 我们的自定义渲染会把这些元素全部替换成 Either.right(TooltipComponent)，
+        // 导致 ArrayList.add(1, ...) 越界崩溃。创造物品栏场景下直接早退，走原版 tooltip。
+        if (Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen) {
+            return;
+        }
         ItemStack s = event.getItemStack();
         var font = Minecraft.getInstance().font;
 
@@ -139,7 +146,6 @@ public class DaedalusForgeClientEvents {
             String base = holder.value().description().getString();
             String dk = key.location().toLanguageKey("enchantment") + ".desc";
             String full = I18n.exists(dk) ? I18n.get(dk) : "";
-            int primaryColor = theme.getPrimaryColor();
 
             for (int i = 0; i < event.getTooltipElements().size(); i++) {
                 var el = event.getTooltipElements().get(i);
@@ -148,16 +154,8 @@ public class DaedalusForgeClientEvents {
                 boolean isTitle = line.contains(base);
                 boolean isDesc = !full.isEmpty() && !isTitle && full.contains(line.trim()) && line.trim().length() > 4;
                 if (isTitle || isDesc) {
-                    if (inCreativeInventory) {
-                        // 创造物品栏会往 tooltip 的 index 1 处插入附魔名列表，
-                        // 必须保留至少一个 Either.left，否则 ArrayList 越界崩溃。
-                        FormattedText styled = Component.literal(line)
-                                .withStyle(st -> st.withColor(primaryColor));
-                        event.getTooltipElements().set(i, Either.left(styled));
-                    } else {
-                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                                Component.literal(line), theme, -1, true)));
-                    }
+                    event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                            Component.literal(line), theme, -1, true)));
                 }
             }
         }
