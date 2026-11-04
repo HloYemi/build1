@@ -1,0 +1,56 @@
+{
+  "itemGroup.daedalus": "代达罗斯",
+  "item.daedalus.love_poem_sword": "《离别赠礼·爱之诗》",
+  "item.daedalus.love_poem_sword.hold_alt": "按住 Alt 查看详情",
+  "item.daedalus.love_poem_sword.speed_value": "楪祈",
+
+  "item.daedalus.love_poem_sword.desc0.line1": "当群星走向湮灭 当命运写下终章",
+  "item.daedalus.love_poem_sword.desc0.line2": "我唯一不甘的 是世界留给你的 满是泪水的结局",
+
+  "item.daedalus.love_poem_sword.desc1.line1": "你已经不会再爱我",
+  "item.daedalus.love_poem_sword.desc1.line2": "也不再需要我",
+  "item.daedalus.love_poem_sword.desc1.line3": "于是我就这样孤零零一人",
+  "item.daedalus.love_poem_sword.desc1.line4": "那时候你到底说了些什么",
+  "item.daedalus.love_poem_sword.desc1.line5": "传递不了的话语飘荡空中",
+  "item.daedalus.love_poem_sword.desc1.line6": "明明心里明白 今天却依旧许下",
+  "item.daedalus.love_poem_sword.desc1.line7": "无法实现的每份心愿",
+
+  "enchantment.daedalus.daedalus_bow": "代达罗斯之弓",
+  "enchantment.daedalus.daedalus_bow.desc": "增加拉弓/弩/三叉戟的蓄力速度。",
+  "enchantment.daedalus.abyssal_gaze": "深渊凝视",
+  "enchantment.daedalus.abyssal_gaze.desc": "汝之眼睛将会成为克苏鲁之眼，被你注视的生物都会拖入深渊的诅咒。",
+  "enchantment.daedalus.cursed_chain": "诅咒锁链",
+  "enchantment.daedalus.cursed_chain.desc": "你的武器将被诅咒，造成的伤害将会减少，但是攻击将会诅咒敌人。",
+  "enchantment.daedalus.mark_of_sin": "罪孽印记",
+  "enchantment.daedalus.mark_of_sin.desc": "你的攻击将会为目标施加罪孽的印记，使目标被神明审判。",
+  "enchantment.daedalus.void_rend": "虚空撕裂",
+  "enchantment.daedalus.void_rend.desc": "攻击将会撕裂空间，审判众生（对低生命值目标有概率触发诸神黄昏）。",
+  "enchantment.daedalus.soul_thirst": "灵魂饥渴",
+  "enchantment.daedalus.soul_thirst.desc": "每击杀一名生物获得他的灵魂，若灵魂到达阈值，下一击将会追加大量魔法伤害。",
+  "enchantment.daedalus.abyssal_protection": "深渊的加护",
+  "enchantment.daedalus.abyssal_protection.desc": "汝将坠入深渊，承受来自深渊的无上庇护。",
+  "enchantment.daedalus.void_breach": "虚空破壁",
+  "enchantment.daedalus.void_breach.desc": "规则在虚空面前似乎毫无意义（可以让你的攻击无视大部分无敌状态并无视部分动态减伤）。",
+  "enchantment.daedalus.divine_judgment": "神圣裁决",
+  "enchantment.daedalus.divine_judgment.desc": "审判亡灵，对亡灵生物造成更多伤害，有概率净化僵尸村民。",
+  "enchantment.daedalus.angelic_protection": "天使的加护",
+  "enchantment.daedalus.angelic_protection.desc": "你将得到来自高天之上的天使加护。",
+  "enchantment.daedalus.life_siphon": "生命虹吸",
+  "enchantment.daedalus.life_siphon.desc": "造成的所有伤害都会按比例治疗自身。",
+  "enchantment.daedalus.stellar_eater": "耀星之噬",
+  "enchantment.daedalus.stellar_eater.desc": "此乃逆转星辰生灭的奇迹 令武器化作吞噬光热的囚笼 将万物引向命定的终局",
+  "enchantment.daedalus.immortal": "不朽",
+  "enchantment.daedalus.immortal.desc": "我否决我的终末 我存续 故我不败 万般毁灭加身 皆成我不朽的赞歌",
+
+  "effect.daedalus.abyssal_curse": "深渊诅咒",
+  "effect.daedalus.abyssal_curse.description": "每级减少10%护甲和5%韧性，并减少10%造成的伤害（最高80%）。",
+
+  "effect.daedalus.mark_of_sin": "罪孽印记",
+  "effect.daedalus.mark_of_sin.description": "每秒受到最大生命值5%（每级+1%）的随机属性伤害。",
+
+  "effect.daedalus.abyssal_protection": "深渊庇护",
+  "effect.daedalus.abyssal_protection.description": "每级提供10%的全伤害减免，并有5%概率完全闪避伤害。",
+
+  "effect.daedalus.angelic_protection": "天使庇佑",
+  "effect.daedalus.angelic_protection.description": "每级减少25%来自亡灵的伤害，提升100%治疗量。4级时获得飞行能力5级无视禁疗。"
+}

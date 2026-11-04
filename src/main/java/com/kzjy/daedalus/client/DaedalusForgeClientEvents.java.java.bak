@@ -1,0 +1,190 @@
+package com.kzjy.daedalus.client;
+
+import com.kzjy.daedalus.Daedalus;
+import com.kzjy.daedalus.client.gui.DaedalusTooltipData;
+import com.kzjy.daedalus.enchantment.DaedalusBaseEnchantment;
+import com.kzjy.daedalus.enchantment.util.EnchantmentTheme;
+import com.kzjy.daedalus.registry.DaedalusRegistries;
+import com.mojang.datafixers.util.Either;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderTooltipEvent;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Mod.EventBusSubscriber(modid = Daedalus.MODID, value = Dist.CLIENT)
+public class DaedalusForgeClientEvents {
+
+    private static int typewriterTick = 0;
+    private static boolean wasAltDown = false;
+
+    private static final int TICKS_PER_CHAR = 2;
+
+    @SubscribeEvent
+    public static void clientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            boolean isAltDown = Screen.hasAltDown();
+
+            if (isAltDown) {
+                if (!wasAltDown) {
+                    typewriterTick = 0;
+                }
+                typewriterTick++;
+            } else {
+                typewriterTick = 0;
+            }
+
+            wasAltDown = isAltDown;
+        }
+    }
+
+    @SubscribeEvent
+    public static void onItemTooltip(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
+        if (stack.getItem() == DaedalusRegistries.LOVE_POEM_SWORD.get()) {
+            List<Component> tooltip = event.getToolTip();
+            tooltip.add(CommonComponents.EMPTY);
+            tooltip.add(Component.translatable("item.modifiers.mainhand").withStyle(ChatFormatting.GRAY));
+            MutableComponent damageText = Component.literal(" Love ")
+                    .append(Component.translatable("attribute.name.generic.attack_damage"));
+            tooltip.add(damageText);
+            MutableComponent speedText = Component.literal(" ")
+                    .append(Component.translatable("item.daedalus.love_poem_sword.speed_value"))
+                    .append(Component.literal(" "))
+                    .append(Component.translatable("attribute.name.generic.attack_speed"));
+            tooltip.add(speedText);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onGatherTooltipComponents(RenderTooltipEvent.GatherComponents event) {
+        ItemStack stack = event.getItemStack();
+        Font font = Minecraft.getInstance().font;
+
+        if (stack.getItem() == DaedalusRegistries.LOVE_POEM_SWORD.get()) {
+            String nameKey = "item.daedalus.love_poem_sword";
+            String holdAltKey = "item.daedalus.love_poem_sword.hold_alt";
+            String speedValueKey = "item.daedalus.love_poem_sword.speed_value";
+
+            String translatedName = I18n.get(nameKey);
+            String translatedHoldAlt = I18n.get(holdAltKey);
+            String translatedSpeedValue = I18n.get(speedValueKey);
+            String attackDamageName = I18n.get("attribute.name.generic.attack_damage");
+            String attackSpeedName = I18n.get("attribute.name.generic.attack_speed");
+
+            List<String> desc0Lines = new ArrayList<>();
+            desc0Lines.add(I18n.get("item.daedalus.love_poem_sword.desc0.line1"));
+            desc0Lines.add(I18n.get("item.daedalus.love_poem_sword.desc0.line2"));
+
+            List<String> desc1Lines = new ArrayList<>();
+            for (int i = 1; i <= 7; i++) {
+                desc1Lines.add(I18n.get("item.daedalus.love_poem_sword.desc1.line" + i));
+            }
+
+            int currentMaxWidth = 0;
+            if (Screen.hasAltDown()) {
+                for (String s : desc0Lines) currentMaxWidth = Math.max(currentMaxWidth, font.width(s));
+            } else {
+                for (String s : desc1Lines) currentMaxWidth = Math.max(currentMaxWidth, font.width(s));
+                currentMaxWidth = Math.max(currentMaxWidth, font.width(translatedHoldAlt));
+            }
+
+            int charsToShow = typewriterTick / TICKS_PER_CHAR;
+            int charsProcessed = 0;
+
+            for (int i = 0; i < event.getTooltipElements().size(); i++) {
+                Either<FormattedText, TooltipComponent> element = event.getTooltipElements().get(i);
+                if (element.left().isPresent()) {
+                    String lineText = element.left().get().getString();
+
+                    if (lineText.contains(translatedName)) {
+                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                Component.literal(lineText), EnchantmentTheme.LOVE_BLUE, -1, false)));
+                    }
+                    else if (desc0Lines.contains(lineText)) {
+                        int lineLength = lineText.length();
+
+                        if (charsProcessed >= charsToShow) {
+                            event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                    Component.literal(""), EnchantmentTheme.LAVENDER, currentMaxWidth, true)));
+                        }
+                        else if (charsProcessed + lineLength > charsToShow) {
+                            int subLength = charsToShow - charsProcessed;
+                            String subText = lineText.substring(0, subLength);
+                            event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                    Component.literal(subText), EnchantmentTheme.LAVENDER, currentMaxWidth, true)));
+                        }
+                        else {
+                            event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                    Component.literal(lineText), EnchantmentTheme.LAVENDER, currentMaxWidth, true)));
+                        }
+
+                        charsProcessed += lineLength;
+                    }
+                    else if (desc1Lines.contains(lineText)) {
+                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                Component.literal(lineText), EnchantmentTheme.MIRACLE, currentMaxWidth, true)));
+                    }
+                    else if (lineText.contains(translatedHoldAlt)) {
+                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                Component.literal(lineText), EnchantmentTheme.MIRACLE, currentMaxWidth, true)));
+                    }
+                    else if (lineText.contains("Love") && lineText.contains(attackDamageName)) {
+                        Component prefix = Component.literal(" Love ");
+                        Component suffix = Component.literal(" " + attackDamageName).withStyle(ChatFormatting.DARK_GREEN);
+                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                prefix, EnchantmentTheme.MIRACLE, -1, true, suffix)));
+                    }
+                    else if (lineText.contains(translatedSpeedValue) && lineText.contains(attackSpeedName)) {
+                        Component prefix = Component.literal(" " + translatedSpeedValue + " ");
+                        Component suffix = Component.literal(" " + attackSpeedName).withStyle(ChatFormatting.DARK_GREEN);
+                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                prefix, EnchantmentTheme.LAVENDER, -1, true, suffix)));
+                    }
+                }
+            }
+        }
+
+        Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+        for (Enchantment ench : enchantments.keySet()) {
+            if (ench instanceof DaedalusBaseEnchantment daedalusEnch) {
+                String baseName = Component.translatable(ench.getDescriptionId()).getString();
+                String descKey = ench.getDescriptionId() + ".desc";
+                String fullDesc = I18n.exists(descKey) ? I18n.get(descKey) : "";
+
+                for (int i = 0; i < event.getTooltipElements().size(); i++) {
+                    Either<FormattedText, TooltipComponent> element = event.getTooltipElements().get(i);
+                    if (element.left().isPresent()) {
+                        FormattedText text = element.left().get();
+                        String lineText = text.getString();
+                        boolean isTitle = lineText.contains(baseName);
+                        boolean isDescription = !fullDesc.isEmpty() && !isTitle && fullDesc.contains(lineText.trim()) && lineText.trim().length() > 4;
+
+                        if (isTitle || isDescription) {
+                            event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                    Component.literal(lineText), daedalusEnch.getTheme(), -1, true)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

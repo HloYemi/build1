@@ -1,0 +1,58 @@
+{
+  "itemGroup.daedalus": "Daedalus",
+  "item.daedalus.love_poem_sword": "Parting Gift: Poem of Love",
+  "item.daedalus.love_poem_sword.hold_alt": "Hold Alt for details",
+  "item.daedalus.love_poem_sword.speed_value": "Inori",
+
+  "item.daedalus.love_poem_sword.desc0.line1": "When the stars fade into oblivion",
+  "item.daedalus.love_poem_sword.desc0.line2": "When fate writes its final chapter",
+  "item.daedalus.love_poem_sword.desc0.line3": "My only regret is the tear-filled ending",
+  "item.daedalus.love_poem_sword.desc0.line4": "The world left for you",
+
+  "item.daedalus.love_poem_sword.desc1.line1": "You will love me no longer",
+  "item.daedalus.love_poem_sword.desc1.line2": "Nor will you need me",
+  "item.daedalus.love_poem_sword.desc1.line3": "So I remain here, all alone",
+  "item.daedalus.love_poem_sword.desc1.line4": "What did you say back then?",
+  "item.daedalus.love_poem_sword.desc1.line5": "Words that cannot be conveyed drift in the air",
+  "item.daedalus.love_poem_sword.desc1.line6": "Though I know it in my heart",
+  "item.daedalus.love_poem_sword.desc1.line7": "Today I still make every wish that cannot come true",
+
+  "enchantment.daedalus.daedalus_bow": "Daedalus Bow",
+  "enchantment.daedalus.daedalus_bow.desc": "Increases charging speed for bows, crossbows, and tridents.",
+  "enchantment.daedalus.abyssal_gaze": "Abyssal Gaze",
+  "enchantment.daedalus.abyssal_gaze.desc": "Your eyes become the Eyes of Cthulhu. Creatures you stare at are dragged into the abyss.",
+  "enchantment.daedalus.cursed_chain": "Cursed Chain",
+  "enchantment.daedalus.cursed_chain.desc": "Your weapon is cursed. Base damage is halved, but deals additional cursed damage.",
+  "enchantment.daedalus.mark_of_sin": "Mark of Sin",
+  "enchantment.daedalus.mark_of_sin.desc": "Applies a Mark of Sin to the target, invoking divine judgment.",
+  "enchantment.daedalus.void_rend": "Void Rend",
+  "enchantment.daedalus.void_rend.desc": "Tears through space, dealing true damage. Can trigger Ragnarok on low HP foes.",
+  "enchantment.daedalus.soul_thirst": "Soul Thirst",
+  "enchantment.daedalus.soul_thirst.desc": "Collects souls on kill. Unleashes massive magic damage when full.",
+  "enchantment.daedalus.abyssal_protection": "Abyssal Protection",
+  "enchantment.daedalus.abyssal_protection.desc": "Grants the protection of the abyss.",
+  "enchantment.daedalus.void_breach": "Void Breach",
+  "enchantment.daedalus.void_breach.desc": "Ignores invulnerability frames.",
+  "enchantment.daedalus.divine_judgment": "Divine Judgment",
+  "enchantment.daedalus.divine_judgment.desc": "Judges the undead. Has a chance to purify Zombie Villagers.",
+  "enchantment.daedalus.angelic_protection": "Angelic Protection",
+  "enchantment.daedalus.angelic_protection.desc": "Grants protection from angels above.",
+  "enchantment.daedalus.life_siphon": "Life Siphon",
+  "enchantment.daedalus.life_siphon.desc": "Heals attacker based on damage dealt.",
+  "enchantment.daedalus.stellar_eater": "Stellar Eater",
+  "enchantment.daedalus.stellar_eater.desc": "A miracle reversing the birth and death of stars. The weapon becomes a cage devouring light and heat, guiding all things to their destined end.",
+  "enchantment.daedalus.immortal": "Immortal",
+  "enchantment.daedalus.immortal.desc": "I deny my end. I persist, therefore I am undefeated. All destruction upon me becomes the hymn of my immortality.",
+
+  "effect.daedalus.abyssal_curse": "Abyssal Curse",
+  "effect.daedalus.abyssal_curse.description": "Reduces Armor by 10% and Toughness by 5% per level. Reduces output damage by 10% per level (Max 80%).",
+
+  "effect.daedalus.mark_of_sin": "Mark of Sin",
+  "effect.daedalus.mark_of_sin.description": "Deals 5% (+1% per level) Max HP damage of a random type every second.",
+
+  "effect.daedalus.abyssal_protection": "Abyssal Protection",
+  "effect.daedalus.abyssal_protection.description": "Grants 10% damage reduction per level, with a 5% chance to dodge attacks completely.",
+
+  "effect.daedalus.angelic_protection": "Angelic Protection",
+  "effect.daedalus.angelic_protection.description": "Reduces damage from Undead by 25% per level and boosts healing by 100%. Level 4 grants flight and ignores anti-heal."
+}

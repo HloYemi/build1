@@ -1,0 +1,13 @@
+﻿# 忽略的文件夹
+.idea/
+.gradle/
+run/
+build/
+out/
+
+# 忽略的文件
+LICENSE
+LICENSE.txt
+*.iml
+.gradle/
+build/build.log

@@ -1,0 +1,10 @@
+{
+  "description": { "translate": "enchantment.daedalus.stellar_eater" },
+  "supported_items": "#minecraft:enchantable/weapon",
+  "weight": 1,
+  "max_level": 1,
+  "min_cost": { "base": 50 },
+  "max_cost": { "base": 80 },
+  "anvil_cost": 20,
+  "slots": [ "mainhand" ]
+}

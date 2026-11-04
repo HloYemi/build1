@@ -1,0 +1,10 @@
+{
+  "description": { "translate": "enchantment.daedalus.abyssal_protection" },
+  "supported_items": "#minecraft:enchantable/chest_armor",
+  "weight": 1,
+  "max_level": 5,
+  "min_cost": { "base": 30, "per_level_above_first": 15 },
+  "max_cost": { "base": 80, "per_level_above_first": 15 },
+  "anvil_cost": 12,
+  "slots": [ "chest" ]
+}

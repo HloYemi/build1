@@ -1,0 +1,10 @@
+{
+  "description": { "translate": "enchantment.daedalus.daedalus_bow" },
+  "supported_items": "#minecraft:enchantable/bow",
+  "weight": 1,
+  "max_level": 5,
+  "min_cost": { "base": 20, "per_level_above_first": 10 },
+  "max_cost": { "base": 70, "per_level_above_first": 10 },
+  "anvil_cost": 8,
+  "slots": [ "mainhand", "offhand" ]
+}
