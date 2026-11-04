@@ -2,12 +2,10 @@ package com.kzjy.daedalus.item;
 
 import com.kzjy.daedalus.enchantment.util.EnchantmentTheme;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -24,7 +22,6 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -62,12 +59,12 @@ public class LovePoemSwordItem extends SwordItem {
         return InteractionResultHolder.consume(stack);
     }
 
-    @Override
-    public ItemStack getDefaultInstance() {
-        ItemStack stack = new ItemStack(this);
-        stack.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE);
-        return stack;
-    }
+    // getDefaultInstance() 已移除：
+    // 原实现中 stack.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE)
+    // 会让 getTooltipLines() 返回不可变空列表，
+    // 进而在 CreativeModeInventoryScreen.getTooltipFromContainerItem
+    // 对空列表执行 add(1, ...) 时抛出 IndexOutOfBoundsException。
+    // 移除后走 vanilla 默认行为，tooltip 非空，不再崩溃。
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
