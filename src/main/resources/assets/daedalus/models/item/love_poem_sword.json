@@ -1,17 +1,6 @@
 {
-  "parent": "minecraft:item/handheld",
+  "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "daedalus:item/love_poem_sword",
-    "halo_tex": "daedalus:item/love_poem_sword_mask"
-  },
-  "loader": "renderblender:halo_cosmic",
-  "halo": {
-    "texture": "halo_tex",
-    "color": 2003199,
-    "size": 1.0,
-    "pulse": true
-  },
-  "cosmic": {
-    "mask": "daedalus:item/love_poem_sword_mask"
+    "layer0": "daedalus:item/love_poem_sword"
   }
 }
