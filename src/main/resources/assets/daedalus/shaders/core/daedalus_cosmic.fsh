@@ -25,7 +25,7 @@ uniform float opacity;
 // [新增] 接收 Java 传来的主题色 (RGB)
 uniform vec3 baseColor;
 
-uniform mat2 cosmicuvs[cosmiccount];
+uniform float cosmicuvs[40];
 
 in float vertexDistance;
 in vec4 vertexColor;
@@ -116,10 +116,11 @@ void main (void) {
             if (rotation == 1) { oru = 1.0-rv; orv = ru; }
             else if (rotation == 2) { oru = 1.0-ru; orv = 1.0-rv; }
             else if (rotation == 3) { oru = rv; orv = 1.0-ru; }
-            float umin = cosmicuvs[symbol][0][0];
-            float umax = cosmicuvs[symbol][1][0];
-            float vmin = cosmicuvs[symbol][0][1];
-            float vmax = cosmicuvs[symbol][1][1];
+            int idx = symbol * 4;
+            float umin = cosmicuvs[idx];
+            float umax = cosmicuvs[idx + 2];
+            float vmin = cosmicuvs[idx + 1];
+            float vmax = cosmicuvs[idx + 3];
             cosmictex.x = umin * (1.0-oru) + umax * oru;
             cosmictex.y = vmin * (1.0-orv) + vmax * orv;
             tcol = texture(Sampler0, cosmictex);

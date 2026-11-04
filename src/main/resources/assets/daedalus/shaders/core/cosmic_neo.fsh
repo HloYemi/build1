@@ -21,7 +21,7 @@ uniform float externalScale;
 
 uniform float opacity;
 
-uniform mat2 cosmicuvs[cosmiccount];
+uniform float cosmicuvs[40];
 
 uniform int useCosmicType;
 uniform vec4 cosmicColor0;

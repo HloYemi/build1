@@ -91,6 +91,14 @@ public class DaedalusModelLoader implements IGeometryLoader<DaedalusModelLoader.
                                ModelState modelState, ItemOverrides overrides) {
             BakedModel bakedBaseModel = this.baseModel.bake(
                     baker, this.baseModel, spriteGetter, modelState, true);
+            if (bakedBaseModel.getQuads(null, null, net.minecraft.util.RandomSource.create()).isEmpty()) {
+                net.minecraft.client.resources.model.Material layer0 = this.baseModel.getMaterial("layer0");
+                if (layer0 != null) {
+                    TextureAtlasSprite sprite = spriteGetter.apply(layer0);
+                    java.util.List<BakedQuad> quads = committee.nova.mods.renderblender.api.client.model.bakedmodels.WrappedItemModel.bakeItem(java.util.List.of(sprite));
+                    bakedBaseModel = new net.minecraft.client.resources.model.SimpleBakedModel(quads, new java.util.HashMap<>(), true, false, true, sprite, this.baseModel.getTransforms(), ItemOverrides.EMPTY);
+                }
+            }
             return new DaedalusCosmicBakedModel(bakedBaseModel,
                     Collections.singletonList(maskLocation),
                     glowColor, glowWidth, glowOffset, isNeo, neoType);
