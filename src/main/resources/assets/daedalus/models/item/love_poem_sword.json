@@ -3,8 +3,9 @@
   "textures": {
     "layer0": "daedalus:item/love_poem_sword"
   },
-  "loader": "renderblender:cosmic",
-  "cosmic": {
-    "mask": "daedalus:item/love_poem_sword_mask"
+  "loader": "daedalus:cosmic",
+  "cosmic_neo": {
+    "mask": "daedalus:item/love_poem_sword_mask",
+    "type": 14
   }
 }

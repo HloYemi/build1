@@ -3,8 +3,8 @@
   "textures": {
     "layer0": "minecraft:item/enchanted_book"
   },
-  "loader": "renderblender:cosmic",
-  "cosmic": {
+  "loader": "daedalus:cosmic",
+  "daedalus_cosmic": {
     "mask": "daedalus:item/daedalus_enchanted_book_mask"
   }
 }

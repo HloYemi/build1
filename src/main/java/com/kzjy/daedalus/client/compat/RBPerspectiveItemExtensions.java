@@ -1,8 +1,7 @@
 package com.kzjy.daedalus.client.compat;
 
-import com.kzjy.daedalus.Daedalus;
+import com.kzjy.daedalus.client.model.DaedalusCosmicBakedModel;
 import com.mojang.blaze3d.vertex.PoseStack;
-import committee.nova.mods.renderblender.api.client.model.PerspectiveModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -33,22 +32,21 @@ public final class RBPerspectiveItemExtensions implements IClientItemExtensions 
             Minecraft mc = Minecraft.getInstance();
             BakedModel model = mc.getItemRenderer().getModel(stack, mc.level, mc.player, 0);
 
-            if (model instanceof PerspectiveModel pm) {
-                try {
-                    // 1.21.1 的 renderByItem 调用时，PoseStack 已经处于物品视角的原点，
-                    // 不包含原版的 ItemTransform。需要手动应用 PerspectiveModelState 的变换。
-                    PerspectiveModel transformed = (PerspectiveModel) pm.applyTransform(ctx, pStack, false);
-                    pStack.translate(-0.5D, -0.5D, -0.5D);
-                    transformed.renderItem(stack, ctx, pStack, source, light, overlay);
-                } catch (Throwable t) {
-                    Daedalus.LOGGER.error("[Daedalus] RB renderItem failed", t);
+            // 1. 渲染原版模型
+            mc.getItemRenderer().renderStatic(stack, ctx, light, overlay, pStack, source, mc.level, 0);
+
+            // 2. 渲染星空遮罩
+            if (model instanceof DaedalusCosmicBakedModel cosmic) {
+                float yaw = 0;
+                float pitch = 0;
+                float scale = 1f;
+                if (mc.player != null) {
+                    yaw = (float) (mc.player.getYRot() * 2.0f * Math.PI / 360.0);
+                    pitch = -(float) (mc.player.getXRot() * 2.0f * Math.PI / 360.0);
                 }
-            } else {
-                // 如果没有找到 PerspectiveModel，退化为原版渲染
-                mc.getItemRenderer().renderStatic(
-                        stack, ctx, light, overlay, pStack, source,
-                        mc.level, 0
-                );
+                if (ctx == ItemDisplayContext.GUI) scale = 100f;
+
+                cosmic.renderCosmicEffect(stack, pStack, source, light, overlay, yaw, pitch, scale);
             }
         }
     }

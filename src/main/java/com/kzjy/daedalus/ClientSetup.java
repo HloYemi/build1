@@ -1,5 +1,6 @@
 package com.kzjy.daedalus;
 
+import com.kzjy.daedalus.client.model.DaedalusModelLoader;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
@@ -7,6 +8,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 
 @EventBusSubscriber(modid = Daedalus.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class ClientSetup {
@@ -26,5 +28,13 @@ public class ClientSetup {
                         return 0.0f;
                     });
         });
+    }
+
+    @SubscribeEvent
+    public static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
+        event.register(
+            ResourceLocation.fromNamespaceAndPath(Daedalus.MODID, "cosmic"),
+            new DaedalusModelLoader()
+        );
     }
 }
