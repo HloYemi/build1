@@ -22,7 +22,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
-import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ public class DaedalusForgeClientEvents {
     private static final int TICKS_PER_CHAR = 2;
 
     @SubscribeEvent
-    public static void clientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
+    public static void clientTick(ClientTickEvent.Post event) {
+        
         boolean alt = Screen.hasAltDown();
         if (alt) { if (!wasAltDown) typewriterTick = 0; typewriterTick++; }
         else typewriterTick = 0;

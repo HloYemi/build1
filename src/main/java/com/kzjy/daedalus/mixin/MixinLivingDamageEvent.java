@@ -8,19 +8,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * @author Kzjy<br>
- * LivingDamageEvent 混入<br>
- * 拦截 setAmount, 防止最终伤害被削减<br>
- */
-@Mixin(value = LivingDamageEvent.class, remap = false)
+@Mixin(value = LivingDamageEvent.Pre.class, remap = false)
 public abstract class MixinLivingDamageEvent {
-    @Shadow(remap = false) public abstract float getAmount();
+    @Shadow(remap = false) public abstract float getNewDamage();
 
-    @Inject(method = "setAmount", at = @At("HEAD"), cancellable = true, remap = false)
-    private void daedalus$interceptSetAmount(float amount, CallbackInfo ci) {
-        if (((IDaedalusLivingEvent) (Object) this).daedalus$isOnlyAmountUp()) {
-            if (amount < this.getAmount()) {
+    @Inject(method = "setNewDamage", at = @At("HEAD"), cancellable = true, remap = false)
+    private void daedalus$interceptSetNewDamage(float newDamage, CallbackInfo ci) {
+        if (((IDaedalusLivingEvent) (Object) this).daedalus$isAmountOnlyUp()) {
+            if (newDamage < this.getNewDamage()) {
                 ci.cancel();
             }
         }

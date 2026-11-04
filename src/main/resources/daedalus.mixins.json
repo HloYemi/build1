@@ -11,7 +11,6 @@
     "MixinLivingDamageEvent",
     "MixinLivingEvent",
     "MixinLivingHealEvent",
-    "MixinLivingHurtEvent",
     "MixinLivingEntity",
     "MixinSynchedEntityData",
     "ZombieVillagerInvoker"

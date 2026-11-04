@@ -1,6 +1,6 @@
 package com.kzjy.daedalus.config;
 
-import net.neoforged.neoforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -10,117 +10,117 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public class DaedalusConfig {
     public static final Common COMMON;
-    public static final ForgeConfigSpec COMMON_SPEC;
+    public static final ModConfigSpec COMMON_SPEC;
 
     static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+        final Pair<Common, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Common::new);
         COMMON_SPEC = specPair.getRight();
         COMMON = specPair.getLeft();
     }
 
     public static class Common {
         // #1 代达罗斯之弓
-        public final ForgeConfigSpec.BooleanValue daedalusBowEnabled;
-        public final ForgeConfigSpec.IntValue daedalusBowMaxLevel;
-        public final ForgeConfigSpec.BooleanValue daedalusBowTradeable;
-        public final ForgeConfigSpec.BooleanValue daedalusBowTreasure;
-        public final ForgeConfigSpec.DoubleValue daedalusBowSpeedPerLevel;
+        public final ModConfigSpec.BooleanValue daedalusBowEnabled;
+        public final ModConfigSpec.IntValue daedalusBowMaxLevel;
+        public final ModConfigSpec.BooleanValue daedalusBowTradeable;
+        public final ModConfigSpec.BooleanValue daedalusBowTreasure;
+        public final ModConfigSpec.DoubleValue daedalusBowSpeedPerLevel;
 
         // #2 深渊凝视
-        public final ForgeConfigSpec.BooleanValue abyssalGazeEnabled;
-        public final ForgeConfigSpec.IntValue abyssalGazeMaxLevel;
-        public final ForgeConfigSpec.BooleanValue abyssalGazeTradeable;
-        public final ForgeConfigSpec.BooleanValue abyssalGazeTreasure;
-        public final ForgeConfigSpec.IntValue abyssalGazeCurseLevelPerLevel;
+        public final ModConfigSpec.BooleanValue abyssalGazeEnabled;
+        public final ModConfigSpec.IntValue abyssalGazeMaxLevel;
+        public final ModConfigSpec.BooleanValue abyssalGazeTradeable;
+        public final ModConfigSpec.BooleanValue abyssalGazeTreasure;
+        public final ModConfigSpec.IntValue abyssalGazeCurseLevelPerLevel;
 
         // #3 诅咒锁链
-        public final ForgeConfigSpec.BooleanValue cursedChainEnabled;
-        public final ForgeConfigSpec.IntValue cursedChainMaxLevel;
-        public final ForgeConfigSpec.BooleanValue cursedChainTradeable;
-        public final ForgeConfigSpec.BooleanValue cursedChainTreasure;
-        public final ForgeConfigSpec.DoubleValue cursedChainBaseReduction;
-        public final ForgeConfigSpec.DoubleValue cursedChainReductionRecoveryPerLevel;
-        public final ForgeConfigSpec.DoubleValue cursedChainBonusDamagePerLevel;
+        public final ModConfigSpec.BooleanValue cursedChainEnabled;
+        public final ModConfigSpec.IntValue cursedChainMaxLevel;
+        public final ModConfigSpec.BooleanValue cursedChainTradeable;
+        public final ModConfigSpec.BooleanValue cursedChainTreasure;
+        public final ModConfigSpec.DoubleValue cursedChainBaseReduction;
+        public final ModConfigSpec.DoubleValue cursedChainReductionRecoveryPerLevel;
+        public final ModConfigSpec.DoubleValue cursedChainBonusDamagePerLevel;
 
         // #4 罪孽印记
-        public final ForgeConfigSpec.BooleanValue markOfSinEnabled;
-        public final ForgeConfigSpec.IntValue markOfSinMaxLevel;
-        public final ForgeConfigSpec.BooleanValue markOfSinTradeable;
-        public final ForgeConfigSpec.BooleanValue markOfSinTreasure;
-        public final ForgeConfigSpec.IntValue markOfSinLevelPerLevel;
+        public final ModConfigSpec.BooleanValue markOfSinEnabled;
+        public final ModConfigSpec.IntValue markOfSinMaxLevel;
+        public final ModConfigSpec.BooleanValue markOfSinTradeable;
+        public final ModConfigSpec.BooleanValue markOfSinTreasure;
+        public final ModConfigSpec.IntValue markOfSinLevelPerLevel;
 
         // #5 虚空撕裂
-        public final ForgeConfigSpec.BooleanValue voidRendEnabled;
-        public final ForgeConfigSpec.IntValue voidRendMaxLevel;
-        public final ForgeConfigSpec.BooleanValue voidRendTradeable;
-        public final ForgeConfigSpec.BooleanValue voidRendTreasure;
-        public final ForgeConfigSpec.DoubleValue voidRendTrueDamagePercentPerLevel;
-        public final ForgeConfigSpec.DoubleValue voidRendRagnarokThreshold;
-        public final ForgeConfigSpec.DoubleValue voidRendRagnarokChancePerLevel;
+        public final ModConfigSpec.BooleanValue voidRendEnabled;
+        public final ModConfigSpec.IntValue voidRendMaxLevel;
+        public final ModConfigSpec.BooleanValue voidRendTradeable;
+        public final ModConfigSpec.BooleanValue voidRendTreasure;
+        public final ModConfigSpec.DoubleValue voidRendTrueDamagePercentPerLevel;
+        public final ModConfigSpec.DoubleValue voidRendRagnarokThreshold;
+        public final ModConfigSpec.DoubleValue voidRendRagnarokChancePerLevel;
 
         // #6 灵魂饥渴
-        public final ForgeConfigSpec.BooleanValue soulThirstEnabled;
-        public final ForgeConfigSpec.IntValue soulThirstMaxLevel;
-        public final ForgeConfigSpec.BooleanValue soulThirstTradeable;
-        public final ForgeConfigSpec.BooleanValue soulThirstTreasure;
-        public final ForgeConfigSpec.DoubleValue soulThirstGainPerLevel;
-        public final ForgeConfigSpec.IntValue soulThirstMaxThreshold;
-        public final ForgeConfigSpec.DoubleValue soulThirstBaseBonus;
-        public final ForgeConfigSpec.DoubleValue soulThirstBonusPerLevel;
+        public final ModConfigSpec.BooleanValue soulThirstEnabled;
+        public final ModConfigSpec.IntValue soulThirstMaxLevel;
+        public final ModConfigSpec.BooleanValue soulThirstTradeable;
+        public final ModConfigSpec.BooleanValue soulThirstTreasure;
+        public final ModConfigSpec.DoubleValue soulThirstGainPerLevel;
+        public final ModConfigSpec.IntValue soulThirstMaxThreshold;
+        public final ModConfigSpec.DoubleValue soulThirstBaseBonus;
+        public final ModConfigSpec.DoubleValue soulThirstBonusPerLevel;
 
         // #7 深渊的加护
-        public final ForgeConfigSpec.BooleanValue abyssalProtectionEnabled;
-        public final ForgeConfigSpec.IntValue abyssalProtectionMaxLevel;
-        public final ForgeConfigSpec.BooleanValue abyssalProtectionTradeable;
-        public final ForgeConfigSpec.BooleanValue abyssalProtectionTreasure;
-        public final ForgeConfigSpec.IntValue abyssalProtectionLevelPerLevel;
+        public final ModConfigSpec.BooleanValue abyssalProtectionEnabled;
+        public final ModConfigSpec.IntValue abyssalProtectionMaxLevel;
+        public final ModConfigSpec.BooleanValue abyssalProtectionTradeable;
+        public final ModConfigSpec.BooleanValue abyssalProtectionTreasure;
+        public final ModConfigSpec.IntValue abyssalProtectionLevelPerLevel;
 
         // #8 虚空破壁
-        public final ForgeConfigSpec.BooleanValue voidBreachEnabled;
-        public final ForgeConfigSpec.BooleanValue voidBreachTradeable;
-        public final ForgeConfigSpec.BooleanValue voidBreachTreasure;
+        public final ModConfigSpec.BooleanValue voidBreachEnabled;
+        public final ModConfigSpec.BooleanValue voidBreachTradeable;
+        public final ModConfigSpec.BooleanValue voidBreachTreasure;
 
         // #9 神圣裁决
-        public final ForgeConfigSpec.BooleanValue divineJudgmentEnabled;
-        public final ForgeConfigSpec.IntValue divineJudgmentMaxLevel;
-        public final ForgeConfigSpec.BooleanValue divineJudgmentTradeable;
-        public final ForgeConfigSpec.BooleanValue divineJudgmentTreasure;
-        public final ForgeConfigSpec.DoubleValue divineJudgmentUndeadBonusPerLevel;
-        public final ForgeConfigSpec.DoubleValue divineJudgmentCureChance;
+        public final ModConfigSpec.BooleanValue divineJudgmentEnabled;
+        public final ModConfigSpec.IntValue divineJudgmentMaxLevel;
+        public final ModConfigSpec.BooleanValue divineJudgmentTradeable;
+        public final ModConfigSpec.BooleanValue divineJudgmentTreasure;
+        public final ModConfigSpec.DoubleValue divineJudgmentUndeadBonusPerLevel;
+        public final ModConfigSpec.DoubleValue divineJudgmentCureChance;
 
         // #10 天使的加护
-        public final ForgeConfigSpec.BooleanValue angelicProtectionEnabled;
-        public final ForgeConfigSpec.IntValue angelicProtectionMaxLevel;
-        public final ForgeConfigSpec.BooleanValue angelicProtectionTradeable;
-        public final ForgeConfigSpec.BooleanValue angelicProtectionTreasure;
-        public final ForgeConfigSpec.IntValue angelicProtectionLevelPerLevel;
+        public final ModConfigSpec.BooleanValue angelicProtectionEnabled;
+        public final ModConfigSpec.IntValue angelicProtectionMaxLevel;
+        public final ModConfigSpec.BooleanValue angelicProtectionTradeable;
+        public final ModConfigSpec.BooleanValue angelicProtectionTreasure;
+        public final ModConfigSpec.IntValue angelicProtectionLevelPerLevel;
 
         // #11 生命虹吸
-        public final ForgeConfigSpec.BooleanValue lifeSiphonEnabled;
-        public final ForgeConfigSpec.IntValue lifeSiphonMaxLevel;
-        public final ForgeConfigSpec.BooleanValue lifeSiphonTradeable;
-        public final ForgeConfigSpec.BooleanValue lifeSiphonTreasure;
-        public final ForgeConfigSpec.DoubleValue lifeSiphonBaseHeal;
-        public final ForgeConfigSpec.DoubleValue lifeSiphonHealPerLevel;
+        public final ModConfigSpec.BooleanValue lifeSiphonEnabled;
+        public final ModConfigSpec.IntValue lifeSiphonMaxLevel;
+        public final ModConfigSpec.BooleanValue lifeSiphonTradeable;
+        public final ModConfigSpec.BooleanValue lifeSiphonTreasure;
+        public final ModConfigSpec.DoubleValue lifeSiphonBaseHeal;
+        public final ModConfigSpec.DoubleValue lifeSiphonHealPerLevel;
 
         // #12 耀星之噬
-        public final ForgeConfigSpec.BooleanValue stellarEaterEnabled;
-        public final ForgeConfigSpec.BooleanValue stellarEaterTradeable;
-        public final ForgeConfigSpec.BooleanValue stellarEaterTreasure;
+        public final ModConfigSpec.BooleanValue stellarEaterEnabled;
+        public final ModConfigSpec.BooleanValue stellarEaterTradeable;
+        public final ModConfigSpec.BooleanValue stellarEaterTreasure;
 
         // #13 不朽
-        public final ForgeConfigSpec.BooleanValue immortalEnabled;
-        public final ForgeConfigSpec.IntValue immortalMaxLevel;
-        public final ForgeConfigSpec.BooleanValue immortalTradeable;
-        public final ForgeConfigSpec.BooleanValue immortalTreasure;
-        public final ForgeConfigSpec.IntValue immortalBaseDuration;
-        public final ForgeConfigSpec.IntValue immortalDurationPerLevel;
-        public final ForgeConfigSpec.DoubleValue immortalBaseReduction;
-        public final ForgeConfigSpec.DoubleValue immortalReductionPerLevel;
+        public final ModConfigSpec.BooleanValue immortalEnabled;
+        public final ModConfigSpec.IntValue immortalMaxLevel;
+        public final ModConfigSpec.BooleanValue immortalTradeable;
+        public final ModConfigSpec.BooleanValue immortalTreasure;
+        public final ModConfigSpec.IntValue immortalBaseDuration;
+        public final ModConfigSpec.IntValue immortalDurationPerLevel;
+        public final ModConfigSpec.DoubleValue immortalBaseReduction;
+        public final ModConfigSpec.DoubleValue immortalReductionPerLevel;
 
-        public final ForgeConfigSpec.BooleanValue documentationPlaceholder;
+        public final ModConfigSpec.BooleanValue documentationPlaceholder;
 
-        public Common(ForgeConfigSpec.Builder builder) {
+        public Common(ModConfigSpec.Builder builder) {
             builder.comment("Daedalus Enchantment Configuration", "代达罗斯附魔配置").push("enchantments");
 
             builder.push("daedalus_bow");
