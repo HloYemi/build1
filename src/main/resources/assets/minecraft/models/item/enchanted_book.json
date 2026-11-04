@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "minecraft:item/enchanted_book"
-  }
+  "textures": { "layer0": "minecraft:item/enchanted_book" },
+  "loader": "renderblender:cosmic",
+  "cosmic": { "mask": "minecraft:item/enchanted_book" }
 }
