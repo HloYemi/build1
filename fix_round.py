@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Round 11: 直接使用 RenderBlender 原生的 cosmic loader，恢复特效
+Round 14: 采用 RenderBlender 标准格式完全替换 Daedalus 模型
 """
 from pathlib import Path
 
@@ -9,7 +9,7 @@ P = Path(r"D:\AAA.DownLoad\Daedalus_Enchantment-main")
 RES = P / "src/main/resources"
 
 print("=" * 60)
-print("Round 11: 使用 RenderBlender 原生 Loader 恢复特效")
+print("Round 14: 使用 RenderBlender 标准格式")
 print("=" * 60)
 
 def write(rel, content):
@@ -18,7 +18,7 @@ def write(rel, content):
     p.write_text(content, encoding="utf-8")
     print(f"[写入] {rel}")
 
-# 1. 修改爱之诗剑的模型（使用 handheld 并加上 cosmic 和光晕）
+# 1. 爱之诗剑：使用 handheld，且使用前置库的 halo_cosmic
 write("assets/daedalus/models/item/love_poem_sword.json", """{
   "parent": "minecraft:item/handheld",
   "textures": {
@@ -38,11 +38,12 @@ write("assets/daedalus/models/item/love_poem_sword.json", """{
 }
 """)
 
-# 2. 修改附魔书的模型（覆盖原版，加上 cosmic）
+# 2. 附魔书：使用 generated，且使用前置库的 cosmic
 write("assets/minecraft/models/item/enchanted_book.json", """{
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/enchanted_book"
+    "layer0": "daedalus:item/daedalus_enchanted_book",
+    "halo_tex": "daedalus:item/daedalus_enchanted_book_mask"
   },
   "loader": "renderblender:cosmic",
   "cosmic": {
@@ -53,5 +54,5 @@ write("assets/minecraft/models/item/enchanted_book.json", """{
 
 print("\n下一步:")
 print("  git add .")
-print('  git commit -m "feat: use renderblender native loaders for cosmic effect"')
+print('  git commit -m "feat: use official RenderBlender JSON format for effects"')
 print("  git push")
