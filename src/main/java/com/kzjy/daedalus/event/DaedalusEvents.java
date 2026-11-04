@@ -355,14 +355,6 @@ public class DaedalusEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onMobEffectApplicable(MobEffectEvent.Applicable event) {
-        if (DaedalusConfig.COMMON.immortalEnabled.get()
-                && event.getEffectInstance().getEffect().value().getCategory() == MobEffectCategory.HARMFUL
-                && getArmorEnchantmentLevel(event.getEntity(), DaedalusEnchantments.IMMORTAL) > 0) {
-            event.setResult(net.neoforged.neoforge.common.TriState.FALSE);
-        }
-    }
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
