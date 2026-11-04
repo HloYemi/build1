@@ -12,7 +12,6 @@
     "MixinLivingEvent",
     "MixinLivingHealEvent",
     "MixinLivingEntity",
-    "MixinSynchedEntityData",
     "ZombieVillagerInvoker"
   ],
   "client": [ "MixinItemInHandRenderer", "MixinTooltipColor" ],
