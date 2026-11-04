@@ -26,7 +26,8 @@ repositories {
     maven { url = 'https://neoforged.forgecdn.net/mojang-meta' }
     maven { url = 'https://lss233.littleservice.cn/repositories/minecraft' }
 }
-dependencies {}
+dependencies {
+    implementation files('libs/RenderBlender-1.21.1-1.1.0.jar')}
 tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
         minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,

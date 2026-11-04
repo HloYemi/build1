@@ -1,6 +1,7 @@
 package com.kzjy.daedalus.item;
 
 import com.kzjy.daedalus.enchantment.util.EnchantmentTheme;
+import committee.nova.mods.renderblender.api.iface.transform.IToolTransform;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 
-public class LovePoemSwordItem extends SwordItem {
+public class LovePoemSwordItem extends SwordItem implements IToolTransform {
 
     public LovePoemSwordItem() {
         super(new Tier() {
@@ -58,13 +59,6 @@ public class LovePoemSwordItem extends SwordItem {
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }
-
-    // getDefaultInstance() 已移除：
-    // 原实现中 stack.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE)
-    // 会让 getTooltipLines() 返回不可变空列表，
-    // 进而在 CreativeModeInventoryScreen.getTooltipFromContainerItem
-    // 对空列表执行 add(1, ...) 时抛出 IndexOutOfBoundsException。
-    // 移除后走 vanilla 默认行为，tooltip 非空，不再崩溃。
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {

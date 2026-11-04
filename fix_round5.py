@@ -1,147 +1,127 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Round 5: 重写 LovePoemSwordItem.java，彻底移除 getDefaultInstance()
-删除原因: HIDE_TOOLTIP 使 getTooltipLines() 返回 List.of()，
-         导致 CreativeModeInventoryScreen.getTooltipFromContainerItem 中 add(1,...) 越界崩溃。
+Round 6: 恢复 RenderBlender 前置依赖（第一步：依赖 + IToolTransform）
+DaedalusCosmicBakedModel 暂保持简化版（BakedModelWrapper 透传），
+先确认依赖和接口能编译通过，再恢复完整渲染。
 """
+import re, zipfile, shutil
 from pathlib import Path
 
 P = Path(r"D:\AAA.DownLoad\Daedalus_Enchantment-main")
-SWORD = P / "src/main/java/com/kzjy/daedalus/item/LovePoemSwordItem.java"
+SRC = P / "src/main/java/com/kzjy/daedalus"
+LIBS = P / "libs"
+MODS = Path(r"D:\GameData\Minecraft\NewMinecraft\.minecraft\versions\1.21.1-NeoForge_21.1.249\mods")
 
 print("=" * 60)
-print("Round 5: 重写 LovePoemSwordItem.java")
+print("Round 6: 恢复 RenderBlender 前置依赖")
 print("=" * 60)
 
-if not SWORD.exists():
-    print(f"[错误] 文件不存在: {SWORD}")
-    print("如果之前跑过 fix_round4.py 删了它，从 git 恢复：")
-    print("  git checkout HEAD -- src/main/java/com/kzjy/daedalus/item/LovePoemSwordItem.java")
+# ---------- 1. 定位 RenderBlender jar ----------
+rb_jar = None
+for d in (LIBS, MODS):
+    if d.exists():
+        for f in sorted(d.glob("RenderBlender*.jar")):
+            rb_jar = f
+            break
+    if rb_jar:
+        break
+
+if not rb_jar:
+    print("[错误] 找不到 RenderBlender*.jar")
+    print(f"  检查: {LIBS} 或 {MODS}")
     exit(1)
+print(f"[找到] {rb_jar}")
 
-NEW_CONTENT = '''package com.kzjy.daedalus.item;
+# ---------- 2. 检查 jar 内实际类路径 ----------
+with zipfile.ZipFile(rb_jar) as z:
+    names = z.namelist()
+    def find(simple):
+        for n in names:
+            if n.endswith(f"/{simple}.class") or n == f"{simple}.class":
+                return n
+        return None
+    itool = find("IToolTransform")
+    ibow = find("IBowTransform")
+    wrapped = find("WrappedItemModel")
+    print(f"  IToolTransform      : {itool}")
+    print(f"  IBowTransform       : {ibow}")
+    print(f"  WrappedItemModel    : {wrapped}")
 
-import com.kzjy.daedalus.enchantment.util.EnchantmentTheme;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.Tiers;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+def to_import(p):
+    return p.replace("/", ".").replace(".class", "") if p else None
 
-import java.util.List;
+itool_imp = to_import(itool) or "committee.nova.mods.renderblender.api.iface.transform.IToolTransform"
+print(f"  -> IToolTransform import: {itool_imp}")
 
-public class LovePoemSwordItem extends SwordItem {
-
-    public LovePoemSwordItem() {
-        super(new Tier() {
-                  @Override public int getUses() { return 0; }
-                  @Override public float getSpeed() { return 10.0F; }
-                  @Override public float getAttackDamageBonus() { return 0.0F; }
-                  @Override public TagKey<Block> getIncorrectBlocksForDrops() {
-                      return BlockTags.INCORRECT_FOR_NETHERITE_TOOL;
-                  }
-                  @Override public int getEnchantmentValue() { return 25; }
-                  @Override public Ingredient getRepairIngredient() { return Ingredient.EMPTY; }
-              },
-              new Properties().rarity(Rarity.EPIC).fireResistant()
-                  .attributes(SwordItem.createAttributes(Tiers.NETHERITE, 1314 - 1, -2.4F + 2.3F)));
-    }
-
-    @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BLOCK;
-    }
-
-    @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return 72000;
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        player.startUsingItem(hand);
-        return InteractionResultHolder.consume(stack);
-    }
-
-    // getDefaultInstance() 已移除：
-    // 原实现中 stack.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE)
-    // 会让 getTooltipLines() 返回不可变空列表，
-    // 进而在 CreativeModeInventoryScreen.getTooltipFromContainerItem
-    // 对空列表执行 add(1, ...) 时抛出 IndexOutOfBoundsException。
-    // 移除后走 vanilla 默认行为，tooltip 非空，不再崩溃。
-
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-    }
-
-    @Override
-    public Component getName(ItemStack stack) {
-        return Component.translatable(this.getDescriptionId(stack))
-                .withStyle(Style.EMPTY.withColor(EnchantmentTheme.LOVE_BLUE.getPrimaryColor()));
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        if (Screen.hasAltDown()) {
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc0.line1"));
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc0.line2"));
-        } else {
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc1.line1"));
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc1.line2"));
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc1.line3"));
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc1.line4"));
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc1.line5"));
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc1.line6"));
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.desc1.line7"));
-            tooltip.add(Component.translatable("item.daedalus.love_poem_sword.hold_alt"));
-        }
-    }
-}
-'''
-
-old = SWORD.read_text(encoding="utf-8")
-
-if old.strip() == NEW_CONTENT.strip():
-    print("[跳过] 文件内容已是最新，无需修改")
+# ---------- 3. 复制 jar 到 libs ----------
+LIBS.mkdir(exist_ok=True)
+target = LIBS / rb_jar.name
+if not target.exists() or target.stat().st_size != rb_jar.stat().st_size:
+    shutil.copy(rb_jar, target)
+    print(f"[复制] -> libs/{rb_jar.name}")
 else:
-    SWORD.write_text(NEW_CONTENT, encoding="utf-8")
-    print(f"[写入] {SWORD.relative_to(P)}")
-    print(f"[信息] 原文件 {len(old)} 字符 -> 新文件 {len(NEW_CONTENT)} 字符")
+    print(f"[跳过] libs/{rb_jar.name} 已存在")
 
-c = SWORD.read_text(encoding="utf-8")
-print()
-print("--- 验证 ---")
-print(f"HIDE_TOOLTIP 存在: {'是' if 'HIDE_TOOLTIP' in c else '否'}")
-print(f"getDefaultInstance 存在: {'是' if 'getDefaultInstance' in c else '否'}")
-print(f"DataComponents import 存在: {'是' if 'DataComponents' in c else '否'}")
-print(f"Unit import 存在: {'是' if 'Unit.INSTANCE' in c else '否'}")
+# ---------- 4. 修改 build.gradle ----------
+gradle = P / "build.gradle"
+c = gradle.read_text(encoding="utf-8")
+old_lines = [l for l in c.splitlines() if 'renderblender' in l.lower()]
+print(f"[当前 build.gradle renderblender 行] {old_lines}")
 
-if "HIDE_TOOLTIP" not in c and "getDefaultInstance" not in c:
-    print("\n[成功] 源码已清理干净")
+new_dep = f"    implementation files('libs/{rb_jar.name}')"
+if any('renderblender' in l.lower() for l in c.splitlines()):
+    c = re.sub(
+        r'(?://\s*)?implementation\s+files\([\'"]libs/[Rr]ender[Bb]lender[^)]+\)',
+        new_dep.strip(),
+        c)
 else:
-    print("\n[警告] 仍有残留，请手动检查")
+    c = c.replace("dependencies {", f"dependencies {{\n{new_dep}", 1)
+gradle.write_text(c, encoding="utf-8")
+print(f"[修改] build.gradle")
 
-print()
-print("下一步:")
+# ---------- 5. LovePoemSwordItem implements IToolTransform ----------
+sword = SRC / "item/LovePoemSwordItem.java"
+c = sword.read_text(encoding="utf-8")
+if "implements IToolTransform" not in c:
+    if "import committee.nova.mods.renderblender" not in c:
+        c = re.sub(
+            r'^(import net\.minecraft\.network\.chat\.Style;)',
+            f'import net.minecraft.network.chat.Style;\nimport {itool_imp};',
+            c, count=1, flags=re.MULTILINE)
+    c = c.replace(
+        "public class LovePoemSwordItem extends SwordItem {",
+        "public class LovePoemSwordItem extends SwordItem implements IToolTransform {")
+    sword.write_text(c, encoding="utf-8")
+    print(f"[修改] LovePoemSwordItem implements IToolTransform")
+else:
+    print("[跳过] LovePoemSwordItem 已实现 IToolTransform")
+
+# ---------- 6. 检查 mixins.json 中是否有剑相关的两个 mixin ----------
+mj = P / "src/main/resources/daedalus.mixins.json"
+if mj.exists():
+    c = mj.read_text(encoding="utf-8")
+    missing = [m for m in ("MixinItemInHandRenderer", "MixinTooltipColor") if m not in c]
+    if missing:
+        print(f"[警告] daedalus.mixins.json 缺少: {missing}")
+        print(f"       （不影响编译，但剑的格挡动画/彩虹边框会失效）")
+
+# ---------- 7. 检查 DaedalusRegistries ----------
+reg = SRC / "registry/DaedalusRegistries.java"
+if reg.exists():
+    c = reg.read_text(encoding="utf-8")
+    if "LOVE_POEM_SWORD" not in c:
+        print("[警告] DaedalusRegistries 中 LOVE_POEM_SWORD 缺失！")
+    else:
+        print("[OK] LOVE_POEM_SWORD 注册存在")
+
+print("\n" + "=" * 60)
+print("完成")
+print("=" * 60)
+print("\n下一步:")
 print("  git add .")
-print('  git commit -m "fix: remove getDefaultInstance override from LovePoemSwordItem"')
+print('  git commit -m "feat: restore RenderBlender dependency + IToolTransform"')
 print("  git push")
+print("\n预期: 编译通过。游戏内剑的手部变换恢复（不再偏斜/放大）。")
+print("      但 cosmic 星空、glow_edge 描边、虹光晕仍不渲染（简化版模型）。")
+print("      下一步再做 DaedalusCosmicBakedModel 完整恢复。")
