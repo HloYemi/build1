@@ -1,35 +1,63 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Round 24: 优化“神圣”主题的渐变色，拉开对比度
+Round 25 (修正版): 正确注册图集，修复 mask 缺失导致的正面黑块
 """
 from pathlib import Path
 
 P = Path(r"D:\AAA.DownLoad\Daedalus_Enchantment-main")
-theme_file = P / "src/main/java/com/kzjy/daedalus/enchantment/util/EnchantmentTheme.java"
+RES = P / "src/main/resources"
 
-if not theme_file.exists():
-    print("[错误] 找不到 EnchantmentTheme.java")
-    exit(1)
+print("=" * 60)
+print("Round 25 (修正版): 注册图集并修复 mask 黑块")
+print("=" * 60)
 
-c = theme_file.read_text(encoding="utf-8")
+def write(rel, content):
+    p = RES / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(content, encoding="utf-8")
+    print(f"[写入] {rel}")
 
-# 原来的：DIVINE("神圣", 0xFFD700, 0xFFEA00, ChatFormatting.YELLOW),
-# 修改为：金色 -> 纯白色，增强圣光感
-old_divine = 'DIVINE("神圣", 0xFFD700, 0xFFEA00, ChatFormatting.YELLOW),'
-new_divine = 'DIVINE("神圣", 0xFFD700, 0xFFFFFF, ChatFormatting.YELLOW),'
+# 1. 补上缺失的图集声明 blocks.json
+# 将 daedalus:item/ 目录下的所有贴图（包括原版没有引用的 mask）加载进 BLOCK_ATLAS
+write("assets/daedalus/atlases/blocks.json", """{
+  "sources": [
+    {
+      "type": "minecraft:directory",
+      "prefix": "item/",
+      "source": "item"
+    }
+  ]
+}
+""")
 
-if old_divine in c:
-    c = c.replace(old_divine, new_divine)
-    print("[修改] DIVINE 主题：0xFFEA00 (亮黄) -> 0xFFFFFF (纯白)")
-elif new_divine in c:
-    print("[跳过] DIVINE 主题已是最新")
-else:
-    print("[警告] 未找到 DIVINE 主题的原始定义，请检查文件")
+# 2. 剑的模型：保持不变，引用专属 mask
+write("assets/daedalus/models/item/love_poem_sword.json", """{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "daedalus:item/love_poem_sword"
+  },
+  "loader": "renderblender:cosmic",
+  "cosmic": {
+    "mask": "daedalus:item/love_poem_sword_mask"
+  }
+}
+""")
 
-theme_file.write_text(c, encoding="utf-8")
+# 3. 附魔书的模型：保留原版底图，引用专属 mask（绝对不破坏原版书皮）
+write("assets/minecraft/models/item/enchanted_book.json", """{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/enchanted_book"
+  },
+  "loader": "renderblender:cosmic",
+  "cosmic": {
+    "mask": "daedalus:item/daedalus_enchanted_book_mask"
+  }
+}
+""")
 
 print("\n下一步:")
 print("  git add .")
-print('  git commit -m "style: improve DIVINE theme gradient to gold-white"')
+print('  git commit -m "fix: register atlases/blocks.json for mask texture, keep vanilla book layer0"')
 print("  git push")
