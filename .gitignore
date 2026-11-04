@@ -11,3 +11,6 @@ LICENSE.txt
 *.iml
 .gradle/
 build/build.log
+*.bak
+*.rb.bak
+*.java.bak
