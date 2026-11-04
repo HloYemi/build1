@@ -147,7 +147,7 @@ public class DaedalusForgeClientEvents {
                         // 创造物品栏: 必须保留 Either.left(FormattedText) 结构，
                         // 否则 CreativeModeInventoryScreen 在 index 1 处 add 附魔名列表会越界
                         FormattedText styled = Component.literal(line)
-                                .withStyle(Style.EMPTY.withColor(primaryColor));
+                                .withStyle(s -> s.withColor(primaryColor));
                         event.getTooltipElements().set(i, Either.left(styled));
                     } else {
                         // 普通背包/容器: 动态渐变组件
