@@ -3,12 +3,8 @@
   "textures": {
     "layer0": "minecraft:item/enchanted_book"
   },
-  "overrides": [
-    {
-      "predicate": {
-        "daedalus:enchanted_book": 1.0
-      },
-      "model": "daedalus:item/daedalus_enchanted_book"
-    }
-  ]
+  "loader": "renderblender:cosmic",
+  "cosmic": {
+    "mask": "daedalus:item/daedalus_enchanted_book_mask"
+  }
 }
