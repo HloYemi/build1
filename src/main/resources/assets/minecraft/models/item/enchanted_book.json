@@ -1,17 +1,6 @@
 {
   "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "minecraft:item/enchanted_book",
-    "halo_tex": "minecraft:item/enchanted_book"
-  },
-  "loader": "renderblender:halo_cosmic",
-  "halo": {
-    "texture": "halo_tex",
-    "color": 16766720,
-    "size": 1.0,
-    "pulse": true
-  },
-  "cosmic": {
-    "mask": "minecraft:item/enchanted_book"
-  }
+  "textures": { "layer0": "minecraft:item/enchanted_book" },
+  "loader": "renderblender:cosmic",
+  "cosmic": { "mask": "minecraft:item/enchanted_book" }
 }

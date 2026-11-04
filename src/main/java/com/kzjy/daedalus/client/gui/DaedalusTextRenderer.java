@@ -18,6 +18,7 @@ public class DaedalusTextRenderer implements ClientTooltipComponent {
     private final EnchantmentTheme theme;
     private final int maxWidth;
     private final boolean shouldShake;
+    private final boolean isTitle;
     private final Component suffix;
 
     public DaedalusTextRenderer(DaedalusTooltipData data) {
@@ -26,6 +27,7 @@ public class DaedalusTextRenderer implements ClientTooltipComponent {
         this.theme = data.theme();
         this.maxWidth = data.maxWidth();
         this.shouldShake = data.shouldShake();
+        this.isTitle = data.isTitle();
         this.suffix = data.suffix();
     }
 
@@ -60,7 +62,7 @@ public class DaedalusTextRenderer implements ClientTooltipComponent {
             renderEdenStyle(font, currentX, y, matrix, bufferSource, milliTime);
             currentX += font.width(text);
         } else {
-            renderNormalStyle(font, currentX, y, matrix, bufferSource, timeSeconds);
+            renderImpressionStyle(font, currentX, y, matrix, bufferSource, timeSeconds);
             currentX += font.width(text);
         }
 
@@ -69,16 +71,10 @@ public class DaedalusTextRenderer implements ClientTooltipComponent {
         }
     }
 
-    /**
-     * 效果: 全局飘荡 + 局部波浪 + 呼吸透明度
-     */
     private void renderEdenStyle(Font font, float startX, float startY, Matrix4f matrix, MultiBufferSource bufferSource, long milliTime) {
         float posX = startX;
-
         float globalXOffset = Mth.cos((float) milliTime * 0.000833F);
-
-        int baseColor = theme.getPrimaryColor();
-        baseColor = baseColor | 0xFF000000;
+        int baseColor = theme.getPrimaryColor() | 0xFF000000;
 
         for (int i = 0; i < rawString.length(); i++) {
             char c = rawString.charAt(i);
@@ -91,30 +87,18 @@ public class DaedalusTextRenderer implements ClientTooltipComponent {
             }
 
             float yOffset = Mth.sin((i * 0.5F + (float) milliTime * 0.00166F));
-
             int alpha = (int) (Mth.clamp((Mth.abs(Mth.cos(i * 0.2F + (float) milliTime / 720F)) * 255), 100, 255));
             int colorWithAlpha = (baseColor & 0x00FFFFFF) | (alpha << 24);
 
-            font.drawInBatch(s,
-                    posX + globalXOffset,
-                    startY + yOffset,
-                    colorWithAlpha,
-                    true,
-                    matrix,
-                    bufferSource,
-                    Font.DisplayMode.NORMAL,
-                    0,
-                    15728880);
-
+            font.drawInBatch(s, posX + globalXOffset, startY + yOffset, colorWithAlpha, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880);
             posX += charWidth;
         }
     }
 
     /**
-     * 普通风格渲染<br>
-     * 效果: 抖动 + 彩虹色/渐变
+     * 印象变色重绘：名字高亮闪烁，简介主题波浪
      */
-    private void renderNormalStyle(Font font, float startX, float startY, Matrix4f matrix, MultiBufferSource bufferSource, double timeSeconds) {
+    private void renderImpressionStyle(Font font, float startX, float startY, Matrix4f matrix, MultiBufferSource bufferSource, double timeSeconds) {
         float currentX = startX;
 
         for (int i = 0; i < rawString.length(); i++) {
@@ -130,31 +114,48 @@ public class DaedalusTextRenderer implements ClientTooltipComponent {
             float offsetX = 0;
             float offsetY = 0;
             if (shouldShake) {
-                float angle = (float) ((timeSeconds * 3.0 + i * 0.3) % (Math.PI * 2));
-                offsetX = Mth.sin(angle) * 0.65f;
-                offsetY = Mth.cos(angle) * 0.65f;
+                // 名字抖动更剧烈，简介抖动更平缓
+                float shakeSpeed = isTitle ? 5.0f : 2.0f;
+                float shakeAmount = isTitle ? 0.8f : 0.4f;
+                float angle = (float) ((timeSeconds * shakeSpeed + i * 0.3) % (Math.PI * 2));
+                offsetX = Mth.sin(angle) * shakeAmount;
+                offsetY = Mth.cos(angle) * shakeAmount;
             }
 
             int color;
-            if (theme == EnchantmentTheme.MIRACLE) {
-                float hue = (float) ((timeSeconds * 0.2 + i * 0.05) % 1.0);
-                color = Color.HSBtoRGB(hue, 0.6f, 1.0f);
-            } else if (theme == EnchantmentTheme.LOVE_BLUE) {
-                double colorT = (Math.sin(timeSeconds * 5.0 - i * 0.1) + 1.0) / 2.0;
-                color = lerpColor(theme.getPrimaryColor(), theme.getSecondaryColor(), (float) colorT);
+            if (isTitle) {
+                // 名字：高亮、高饱和度闪烁，贴合主题色系
+                float hueBase = getHueFromColor(theme.getPrimaryColor());
+                // 在主题色相附近小幅度波动，同时亮度极高
+                float hue = (float) ((hueBase + Math.sin(timeSeconds * 3.0 + i * 0.1) * 0.05) % 1.0);
+                if (hue < 0) hue += 1.0f;
+                color = Color.HSBtoRGB(hue, 0.9f, 1.0f);
             } else {
-                double colorT = (Math.sin(timeSeconds * 2.0 - i * 0.1) + 1.0) / 2.0;
+                // 简介：主题色的波浪渐变（主色 -> 副色）
+                double colorT = (Math.sin(timeSeconds * 2.0 - i * 0.15) + 1.0) / 2.0;
                 color = lerpColor(theme.getPrimaryColor(), theme.getSecondaryColor(), (float) colorT);
+                
+                // 如果是奇迹（彩虹）主题，则让简介也有一点彩虹感
+                if (theme == EnchantmentTheme.MIRACLE) {
+                    float hue = (float) ((timeSeconds * 0.2 + i * 0.05) % 1.0);
+                    color = Color.HSBtoRGB(hue, 0.6f, 1.0f);
+                }
             }
 
-            if (theme == EnchantmentTheme.MIRACLE && shouldShake) {
-                int ghostColor = (color & 0x00FFFFFF) | 0x44000000;
+            // 标题加一点光晕残影
+            if (isTitle && shouldShake) {
+                int ghostColor = (color & 0x00FFFFFF) | 0x66000000;
                 font.drawInBatch(s, currentX + offsetX + 0.5f, startY + offsetY + 0.5f, ghostColor, false, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880);
             }
 
             font.drawInBatch(s, currentX + offsetX, startY + offsetY, color, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880);
             currentX += charWidth;
         }
+    }
+
+    private float getHueFromColor(int rgb) {
+        float[] hsb = Color.RGBtoHSB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, null);
+        return hsb[0];
     }
 
     private int lerpColor(int color1, int color2, float t) {
