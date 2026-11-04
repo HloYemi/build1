@@ -2,65 +2,89 @@
 # -*- coding: utf-8 -*-
 """
 Daedalus NeoForge 1.21.1 - fix_round.py
-当前轮次: Round 7
-修复: 附魔 JSON 的 min_cost / max_cost 缺少 per_level_above_first 字段
-影响: void_breach.json, stellar_eater.json (max_level=1 的附魔)
-机制: 1.21.1 附魔 codec 要求该字段必须存在，即使值为 0
+当前轮次: Round 8
+修复: 创造物品栏悬停 Daedalus 附魔书时 tooltip 崩溃 (IndexOutOfBoundsException)
+机制: CreativeModeInventoryScreen 依赖 tooltip 中至少 1 个 Either.left(FormattedText)，
+      我们替换成 Either.right(DaedalusTooltipData) 后会破坏这个假设。
+      修复: 在创造物品栏场景下降级为静态样式 (Either.left + withStyle)，保留原版结构；
+           其它场景仍用动态组件 (Either.right) 保留渐变效果。
 """
-import json
+import re
 from pathlib import Path
 
-P = Path(r"D:\AAA.DownLoad\Daedalus_Enchantment-main")
-ENCH_DIR = P / "src/main/resources/data/daedalus/enchantment"
+P = Path(r"D:\AAA.Download\Daedalus_Enchantment-main")
+SRC = P / "src" / "main" / "java" / "com" / "kzjy" / "daedalus"
+TARGET = SRC / "client" / "DaedalusForgeClientEvents.java"
 
-if not ENCH_DIR.exists():
-    print(f"[错误] 目录不存在: {ENCH_DIR}")
+if not TARGET.exists():
+    print(f"[错误] 找不到: {TARGET}")
     raise SystemExit(1)
 
-print(f"扫描 {ENCH_DIR} 下的附魔 JSON...\n")
+c = TARGET.read_text(encoding="utf-8")
 
-fixed = 0
-skipped = 0
-for f in sorted(ENCH_DIR.glob("*.json")):
-    try:
-        data = json.loads(f.read_text(encoding="utf-8"))
-    except Exception as e:
-        print(f"[解析失败] {f.name}: {e}")
-        continue
+# 1. 添加 import
+if "import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;" not in c:
+    c = c.replace(
+        "import net.minecraft.client.gui.screens.Screen;",
+        "import net.minecraft.client.gui.screens.Screen;\nimport net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;"
+    )
+if "import net.minecraft.network.chat.Style;" not in c:
+    c = c.replace(
+        "import net.minecraft.network.chat.MutableComponent;",
+        "import net.minecraft.network.chat.MutableComponent;\nimport net.minecraft.network.chat.Style;"
+    )
 
-    changed = False
-    for key in ("min_cost", "max_cost"):
-        if key in data and isinstance(data[key], dict):
-            if "per_level_above_first" not in data[key]:
-                data[key]["per_level_above_first"] = 0
-                changed = True
+# 2. 替换附魔书的 tooltip 逻辑：条件降级
+old_block = '''            for (int i = 0; i < event.getTooltipElements().size(); i++) {
+                var el = event.getTooltipElements().get(i);
+                if (el.left().isEmpty()) continue;
+                String line = el.left().get().getString();
+                boolean isTitle = line.contains(base);
+                boolean isDesc = !full.isEmpty() && !isTitle && full.contains(line.trim()) && line.trim().length() > 4;
+                if (isTitle || isDesc)
+                    event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                            Component.literal(line), theme, -1, true)));
+            }'''
 
-    if changed:
-        f.write_text(
-            json.dumps(data, indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8"
-        )
-        print(f"[修复] {f.name}")
-        fixed += 1
-    else:
-        skipped += 1
+new_block = '''            boolean inCreativeInventory = Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen;
+            int primaryColor = theme.getPrimaryColor();
+            for (int i = 0; i < event.getTooltipElements().size(); i++) {
+                var el = event.getTooltipElements().get(i);
+                if (el.left().isEmpty()) continue;
+                String line = el.left().get().getString();
+                boolean isTitle = line.contains(base);
+                boolean isDesc = !full.isEmpty() && !isTitle && full.contains(line.trim()) && line.trim().length() > 4;
+                if (isTitle || isDesc) {
+                    if (inCreativeInventory) {
+                        // 创造物品栏: 必须保留 Either.left(FormattedText) 结构，
+                        // 否则 CreativeModeInventoryScreen 在 index 1 处 add 附魔名列表会越界
+                        FormattedText styled = Component.literal(line)
+                                .withStyle(Style.EMPTY.withColor(primaryColor));
+                        event.getTooltipElements().set(i, Either.left(styled));
+                    } else {
+                        // 普通背包/容器: 动态渐变组件
+                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                Component.literal(line), theme, -1, true)));
+                    }
+                }
+            }'''
 
-print(f"\n修复: {fixed} 个文件，跳过: {skipped} 个文件")
+if old_block not in c:
+    print("[警告] 未找到预期的附魔书 tooltip 代码块，请手工检查")
+    # 尝试打印当前文件里含 'isTitle || isDesc' 的上下文
+    for i, line in enumerate(c.splitlines(), 1):
+        if "isTitle" in line and "isDesc" in line:
+            print(f"  第 {i} 行: {line.strip()}")
+    raise SystemExit(1)
 
-# 校验修复后的 void_breach 和 stellar_eater
-for name in ("void_breach", "stellar_eater"):
-    target = ENCH_DIR / f"{name}.json"
-    if target.exists():
-        data = json.loads(target.read_text(encoding="utf-8"))
-        print(f"\n{name}.json 修复后:")
-        print(f"  max_level = {data.get('max_level')}")
-        print(f"  min_cost = {data.get('min_cost')}")
-        print(f"  max_cost = {data.get('max_cost')}")
+c = c.replace(old_block, new_block)
+TARGET.write_text(c, encoding="utf-8")
+print("[修改] DaedalusForgeClientEvents.java (创造物品栏 tooltip 降级为静态)")
 
 print("\n" + "=" * 60)
-print("Round 7 修复完成")
+print("Round 8 修复完成")
 print("=" * 60)
 print("\n下一步:")
 print("  git add .")
-print('  git commit -m "fix: add per_level_above_first to max_level=1 enchantment costs"')
+print('  git commit -m "fix: downgrade enchantment book tooltip to static in CreativeModeInventoryScreen"')
 print("  git push")

@@ -9,6 +9,7 @@ import com.mojang.datafixers.util.Either;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
@@ -133,15 +134,27 @@ public class DaedalusForgeClientEvents {
             String dk = key.location().toLanguageKey("enchantment") + ".desc";
             String full = I18n.exists(dk) ? I18n.get(dk) : "";
 
+            boolean inCreativeInventory = Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen;
+            int primaryColor = theme.getPrimaryColor();
             for (int i = 0; i < event.getTooltipElements().size(); i++) {
                 var el = event.getTooltipElements().get(i);
                 if (el.left().isEmpty()) continue;
                 String line = el.left().get().getString();
                 boolean isTitle = line.contains(base);
                 boolean isDesc = !full.isEmpty() && !isTitle && full.contains(line.trim()) && line.trim().length() > 4;
-                if (isTitle || isDesc)
-                    event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                            Component.literal(line), theme, -1, true)));
+                if (isTitle || isDesc) {
+                    if (inCreativeInventory) {
+                        // 创造物品栏: 必须保留 Either.left(FormattedText) 结构，
+                        // 否则 CreativeModeInventoryScreen 在 index 1 处 add 附魔名列表会越界
+                        FormattedText styled = Component.literal(line)
+                                .withStyle(Style.EMPTY.withColor(primaryColor));
+                        event.getTooltipElements().set(i, Either.left(styled));
+                    } else {
+                        // 普通背包/容器: 动态渐变组件
+                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
+                                Component.literal(line), theme, -1, true)));
+                    }
+                }
             }
         }
     }
