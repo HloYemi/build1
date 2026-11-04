@@ -1,6 +1,9 @@
 {
   "parent": "minecraft:item/handheld",
-  "textures": { "layer0": "daedalus:item/love_poem_sword" },
+  "textures": {
+    "layer0": "daedalus:item/love_poem_sword",
+    "mask": "daedalus:item/love_poem_sword"
+  },
   "loader": "renderblender:cosmic",
-  "cosmic": { "mask": "daedalus:item/love_poem_sword" }
+  "cosmic": { "mask": "mask" }
 }

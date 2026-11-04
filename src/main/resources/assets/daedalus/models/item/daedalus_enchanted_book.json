@@ -1,10 +1,9 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "daedalus:item/daedalus_enchanted_book"
+    "layer0": "daedalus:item/daedalus_enchanted_book",
+    "mask": "daedalus:item/daedalus_enchanted_book"
   },
-  "loader": "daedalus:cosmic",
-  "daedalus_cosmic": {
-    "mask": "daedalus:item/daedalus_enchanted_book_mask"
-  }
+  "loader": "renderblender:cosmic",
+  "cosmic": { "mask": "mask" }
 }
