@@ -2,8 +2,16 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "daedalus:item/daedalus_enchanted_book",
-    "mask": "daedalus:item/daedalus_enchanted_book"
+    "halo_tex": "daedalus:item/daedalus_enchanted_book"
   },
-  "loader": "renderblender:cosmic",
-  "cosmic": { "mask": "mask" }
+  "loader": "renderblender:halo_cosmic",
+  "halo": {
+    "texture": "halo_tex",
+    "color": 16766720,
+    "size": 1.0,
+    "pulse": true
+  },
+  "cosmic": {
+    "mask": "daedalus:item/daedalus_enchanted_book"
+  }
 }
