@@ -4,153 +4,40 @@ import com.kzjy.daedalus.Daedalus;
 import com.kzjy.daedalus.client.gui.DaedalusTooltipData;
 import com.kzjy.daedalus.enchantment.util.EnchantmentTheme;
 import com.kzjy.daedalus.registry.DaedalusEnchantments;
-import com.kzjy.daedalus.registry.DaedalusRegistries;
 import com.mojang.datafixers.util.Either;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Holder;
-import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
-import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @EventBusSubscriber(modid = Daedalus.MODID, value = Dist.CLIENT)
 public class DaedalusForgeClientEvents {
 
-    private static int typewriterTick = 0;
-    private static boolean wasAltDown = false;
-    private static final int TICKS_PER_CHAR = 2;
-
-    @SubscribeEvent
-    public static void clientTick(ClientTickEvent.Post event) {
-        boolean alt = Screen.hasAltDown();
-        if (alt) {
-            if (!wasAltDown) typewriterTick = 0;
-            typewriterTick++;
-        } else {
-            typewriterTick = 0;
-        }
-        wasAltDown = alt;
-    }
-
-    @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.LOWEST)
-    public static void ensureNonEmptyTooltip(ItemTooltipEvent event) {
-        // 1.21.1 的 CreativeModeInventoryScreen.getTooltipFromContainerItem 内部会对 tooltip 列表
-        // 执行 list.add(1, ...)，如果列表为空则抛 IndexOutOfBoundsException。
-        // 在所有 tooltip 监听器之后，确保创造物品栏场景下列表至少有一个元素。
-        if (Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen
-                && event.getToolTip().isEmpty()) {
-            event.getToolTip().add(CommonComponents.EMPTY);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onItemTooltip(ItemTooltipEvent event) {
-        ItemStack s = event.getItemStack();
-        if (s.is(DaedalusRegistries.LOVE_POEM_SWORD.get())) {
-            List<Component> tip = event.getToolTip();
-            tip.add(CommonComponents.EMPTY);
-            tip.add(Component.translatable("item.modifiers.mainhand").withStyle(ChatFormatting.GRAY));
-            tip.add(Component.literal(" Love ").append(Component.translatable("attribute.name.generic.attack_damage")));
-            tip.add(Component.literal(" ")
-                    .append(Component.translatable("item.daedalus.love_poem_sword.speed_value"))
-                    .append(Component.literal(" "))
-                    .append(Component.translatable("attribute.name.generic.attack_speed")));
-        }
-    }
-
     @SubscribeEvent
     public static void onGatherTooltipComponents(RenderTooltipEvent.GatherComponents event) {
-        // CreativeModeInventoryScreen.getTooltipFromContainerItem 会在 tooltip 的
-        // index 1 处插入附魔名列表，前提是 tooltip 中存在 Either.left(FormattedText) 元素。
-        // 我们的自定义渲染会把这些元素全部替换成 Either.right(TooltipComponent)，
-        // 导致 ArrayList.add(1, ...) 越界崩溃。创造物品栏场景下直接早退，走原版 tooltip。
-        if (Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen) {
-            return;
-        }
         ItemStack s = event.getItemStack();
-        var font = Minecraft.getInstance().font;
+        
+        // 1.21.1 中获取附魔要同时检查普通物品和附魔书
+        processEnchantments(s, s.getEnchantments(), event);
+        processEnchantments(s, s.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY), event);
+    }
 
-        if (s.is(DaedalusRegistries.LOVE_POEM_SWORD.get())) {
-            String name = I18n.get("item.daedalus.love_poem_sword");
-            String holdAlt = I18n.get("item.daedalus.love_poem_sword.hold_alt");
-            String speedVal = I18n.get("item.daedalus.love_poem_sword.speed_value");
-            String atkName = I18n.get("attribute.name.generic.attack_damage");
-            String spdName = I18n.get("attribute.name.generic.attack_speed");
-            List<String> d0 = List.of(
-                    I18n.get("item.daedalus.love_poem_sword.desc0.line1"),
-                    I18n.get("item.daedalus.love_poem_sword.desc0.line2"));
-            List<String> d1 = new ArrayList<>();
-            for (int i = 1; i <= 7; i++) d1.add(I18n.get("item.daedalus.love_poem_sword.desc1.line" + i));
-
-            int w = 0;
-            if (Screen.hasAltDown()) for (String x : d0) w = Math.max(w, font.width(x));
-            else {
-                for (String x : d1) w = Math.max(w, font.width(x));
-                w = Math.max(w, font.width(holdAlt));
-            }
-            int show = typewriterTick / TICKS_PER_CHAR;
-            int done = 0;
-
-            for (int i = 0; i < event.getTooltipElements().size(); i++) {
-                var el = event.getTooltipElements().get(i);
-                if (el.left().isEmpty()) continue;
-                String line = el.left().get().getString();
-                if (line.contains(name)) {
-                    event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                            Component.literal(line), EnchantmentTheme.LOVE_BLUE, -1, false)));
-                } else if (d0.contains(line)) {
-                    int len = line.length();
-                    if (done >= show) {
-                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                                Component.literal(""), EnchantmentTheme.LAVENDER, w, true)));
-                    } else if (done + len > show) {
-                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                                Component.literal(line.substring(0, show - done)), EnchantmentTheme.LAVENDER, w, true)));
-                    } else {
-                        event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                                Component.literal(line), EnchantmentTheme.LAVENDER, w, true)));
-                    }
-                    done += len;
-                } else if (d1.contains(line) || line.contains(holdAlt)) {
-                    event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                            Component.literal(line), EnchantmentTheme.MIRACLE, w, true)));
-                } else if (line.contains("Love") && line.contains(atkName)) {
-                    event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                            Component.literal(" Love "), EnchantmentTheme.MIRACLE, -1, true,
-                            Component.literal(" " + atkName).withStyle(ChatFormatting.DARK_GREEN))));
-                } else if (line.contains(speedVal) && line.contains(spdName)) {
-                    event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
-                            Component.literal(" " + speedVal + " "), EnchantmentTheme.LAVENDER, -1, true,
-                            Component.literal(" " + spdName).withStyle(ChatFormatting.DARK_GREEN))));
-                }
-            }
-        }
-
-        boolean inCreativeInventory =
-                Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen;
-
-        for (var entry : s.getEnchantments().entrySet()) {
+    private static void processEnchantments(ItemStack stack, ItemEnchantments enchantments, RenderTooltipEvent.GatherComponents event) {
+        for (var entry : enchantments.entrySet()) {
             Holder<Enchantment> holder = entry.getKey();
             var keyOpt = holder.unwrapKey();
             if (keyOpt.isEmpty()) continue;
             ResourceKey<Enchantment> key = keyOpt.get();
             if (!key.location().getNamespace().equals(Daedalus.MODID)) continue;
+            
             EnchantmentTheme theme = DaedalusEnchantments.getTheme(key);
             if (theme == null) continue;
 
@@ -161,9 +48,12 @@ public class DaedalusForgeClientEvents {
             for (int i = 0; i < event.getTooltipElements().size(); i++) {
                 var el = event.getTooltipElements().get(i);
                 if (el.left().isEmpty()) continue;
+                
                 String line = el.left().get().getString();
                 boolean isTitle = line.contains(base);
+                // 如果 EnchantmentDescriptions 模组加了前缀或颜色，这里过滤更宽松一些
                 boolean isDesc = !full.isEmpty() && !isTitle && full.contains(line.trim()) && line.trim().length() > 4;
+                
                 if (isTitle || isDesc) {
                     event.getTooltipElements().set(i, Either.right(new DaedalusTooltipData(
                             Component.literal(line), theme, -1, true)));
