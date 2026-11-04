@@ -360,7 +360,7 @@ public class DaedalusEvents {
         if (DaedalusConfig.COMMON.immortalEnabled.get()
                 && event.getEffectInstance().getEffect().value().getCategory() == MobEffectCategory.HARMFUL
                 && getArmorEnchantmentLevel(event.getEntity(), DaedalusEnchantments.IMMORTAL) > 0) {
-            event.setResult(net.neoforged.bus.api.Event.Result.DENY);
+            event.setResult(net.neoforged.neoforge.common.TriState.FALSE);
         }
     }
 

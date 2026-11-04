@@ -128,12 +128,12 @@ public class DaedalusGlowRenderer {
             float outerX2 = (float) (outerRadiusNext * Math.cos(angle2));
             float outerY2 = (float) (outerRadiusNext * Math.sin(angle2));
 
-            addVertexWithColor(vertexConsumer, matrix, normal, innerX1, innerY1, 0.0F, 0.0F, 0.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
-            addVertexWithColor(vertexConsumer, matrix, normal, outerX1, outerY1, 0.0F, 1.0F, 0.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
-            addVertexWithColor(vertexConsumer, matrix, normal, innerX2, innerY2, 0.0F, 0.0F, 1.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
-            addVertexWithColor(vertexConsumer, matrix, normal, outerX1, outerY1, 0.0F, 1.0F, 0.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
-            addVertexWithColor(vertexConsumer, matrix, normal, outerX2, outerY2, 0.0F, 1.0F, 1.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
-            addVertexWithColor(vertexConsumer, matrix, normal, innerX2, innerY2, 0.0F, 0.0F, 1.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
+            addVertexWithColor(vertexConsumer, matrix, innerX1, innerY1, 0.0F, 0.0F, 0.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
+            addVertexWithColor(vertexConsumer, matrix, outerX1, outerY1, 0.0F, 1.0F, 0.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
+            addVertexWithColor(vertexConsumer, matrix, innerX2, innerY2, 0.0F, 0.0F, 1.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
+            addVertexWithColor(vertexConsumer, matrix, outerX1, outerY1, 0.0F, 1.0F, 0.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
+            addVertexWithColor(vertexConsumer, matrix, outerX2, outerY2, 0.0F, 1.0F, 1.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
+            addVertexWithColor(vertexConsumer, matrix, innerX2, innerY2, 0.0F, 0.0F, 1.0F, colorInfo.r1, colorInfo.g1, colorInfo.b1, alpha);
         }
     }
 
@@ -167,22 +167,22 @@ public class DaedalusGlowRenderer {
 
         int alpha = 60;
 
-        addVertexWithColor(vertexConsumer, matrix, normal, x1, 0.0F, 0.0F, 0.0F, 1.0F, color.r1, color.g1, color.b1, alpha);
-        addVertexWithColor(vertexConsumer, matrix, normal, x2, 0.0F, 0.0F, 1.0F, 1.0F, color.r1, color.g1, color.b1, alpha);
-        addVertexWithColor(vertexConsumer, matrix, normal, x3, length, 0.0F, 1.0F, 0.0F, color.r2, color.g2, color.b2, 0);
+        addVertexWithColor(vertexConsumer, matrix, x1, 0.0F, 0.0F, 0.0F, 1.0F, color.r1, color.g1, color.b1, alpha);
+        addVertexWithColor(vertexConsumer, matrix, x2, 0.0F, 0.0F, 1.0F, 1.0F, color.r1, color.g1, color.b1, alpha);
+        addVertexWithColor(vertexConsumer, matrix, x3, length, 0.0F, 1.0F, 0.0F, color.r2, color.g2, color.b2, 0);
 
-        addVertexWithColor(vertexConsumer, matrix, normal, x1, 0.0F, 0.0F, 0.0F, 1.0F, color.r1, color.g1, color.b1, alpha);
-        addVertexWithColor(vertexConsumer, matrix, normal, x3, length, 0.0F, 1.0F, 0.0F, color.r2, color.g2, color.b2, 0);
-        addVertexWithColor(vertexConsumer, matrix, normal, x4, length, 0.0F, 0.0F, 0.0F, color.r2, color.g2, color.b2, 0);
+        addVertexWithColor(vertexConsumer, matrix, x1, 0.0F, 0.0F, 0.0F, 1.0F, color.r1, color.g1, color.b1, alpha);
+        addVertexWithColor(vertexConsumer, matrix, x3, length, 0.0F, 1.0F, 0.0F, color.r2, color.g2, color.b2, 0);
+        addVertexWithColor(vertexConsumer, matrix, x4, length, 0.0F, 0.0F, 0.0F, color.r2, color.g2, color.b2, 0);
     }
 
-    private static void addVertexWithColor(VertexConsumer vertexConsumer, Matrix4f matrix, Matrix3f normal, float x, float y, float z, float u, float v, int r, int g, int b, int alpha) {
+    private static void addVertexWithColor(VertexConsumer vertexConsumer, Matrix4f matrix, float x, float y, float z, float u, float v, int r, int g, int b, int alpha) {
         vertexConsumer.addVertex(matrix, x, y, z)
                 .setColor(r, g, b, alpha)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(LightTexture.FULL_BRIGHT)
-                .setNormal(normal, 0.0F, 1.0F, 0.0F);
+                .setNormal(0.0F, 1.0F, 0.0F);
     }
 
     private record ColorInfo(int r1, int g1, int b1, int r2, int g2, int b2) {}
