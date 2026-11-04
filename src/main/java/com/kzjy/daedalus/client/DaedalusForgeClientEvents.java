@@ -48,6 +48,17 @@ public class DaedalusForgeClientEvents {
         wasAltDown = alt;
     }
 
+    @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.LOWEST)
+    public static void ensureNonEmptyTooltip(ItemTooltipEvent event) {
+        // 1.21.1 的 CreativeModeInventoryScreen.getTooltipFromContainerItem 内部会对 tooltip 列表
+        // 执行 list.add(1, ...)，如果列表为空则抛 IndexOutOfBoundsException。
+        // 在所有 tooltip 监听器之后，确保创造物品栏场景下列表至少有一个元素。
+        if (Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen
+                && event.getToolTip().isEmpty()) {
+            event.getToolTip().add(CommonComponents.EMPTY);
+        }
+    }
+
     @SubscribeEvent
     public static void onItemTooltip(ItemTooltipEvent event) {
         ItemStack s = event.getItemStack();
